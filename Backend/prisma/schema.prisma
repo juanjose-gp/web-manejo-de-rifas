@@ -1,0 +1,54 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+enum Role {
+  USER
+  ADMIN
+  SPONSOR
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String   @unique
+  phone     String
+  password  String
+  role      Role     @default(USER)
+  tickets   Ticket[]
+  createdAt DateTime @default(now())
+}
+
+model Raffle {
+  id           Int      @id @default(autoincrement())
+  title        String
+  totalTickets Int
+  ticketPrice  Float
+  image        String?
+  isActive     Boolean  @default(true)
+  tickets      Ticket[]
+  createdAt    DateTime @default(now())
+}
+
+model Ticket {
+  id        Int      @id @default(autoincrement())
+  number    Int
+  raffleId  Int
+  userId    Int?
+  paymentId Int?
+  raffle    Raffle   @relation(fields: [raffleId], references: [id])
+  user      User?    @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+}
+
+model Payment {
+  id        Int      @id @default(autoincrement())
+  reference String
+  amount    Float
+  status    String
+  createdAt DateTime @default(now())
+}
