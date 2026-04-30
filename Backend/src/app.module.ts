@@ -6,6 +6,8 @@ import { AuthModule } from './modules/auth/auth.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { AdminModule } from './modules/admin/admin_module';
 
+import { RafflesModule } from './modules/raffles/raffles_module';
+
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
@@ -19,6 +21,7 @@ import { AdminModule } from './modules/admin/admin_module';
     PrismaModule,
     AuthModule,
     AdminModule,
+    RafflesModule,
   ],
 })
 export class AppModule {}

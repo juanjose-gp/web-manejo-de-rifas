@@ -24,15 +24,17 @@ model User {
 }
 
 model Raffle {
-  id           Int      @id @default(autoincrement())
-  title        String
-  totalTickets Int
-  ticketPrice  Float
-  image        String?
-  isActive     Boolean  @default(true)
-  tickets      Ticket[]
-  createdAt    DateTime @default(now())
+  id            Int      @id @default(autoincrement())
+  title         String
+  description   String?
+  ticket_price  Float
+  total_numbers Int
+  is_active     Boolean  @default(true)
+  created_at    DateTime @default(now())
+
+  tickets       Ticket[]   
 }
+
 
 model Ticket {
   id        Int      @id @default(autoincrement())
