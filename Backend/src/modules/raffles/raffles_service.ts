@@ -1,29 +1,31 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
-import { CreateRaffleDto } from './dto/create_raffle_dto';
 
 @Injectable()
 export class RafflesService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) {}
 
-  async create_raffle(dto: CreateRaffleDto) {
+  async get_raffles() {
+    return this.prisma.raffle.findMany({
+      orderBy: { id: 'desc' },
+    });
+  }
+
+  async create_raffle(data: {
+    title: string;
+    description?: string;
+    ticket_price: number;
+    total_numbers: number;
+    image_url?: string;
+  }) {
     return this.prisma.raffle.create({
       data: {
-        title: dto.title,
-        description: dto.description,
-        ticket_price: dto.ticket_price,
-        total_numbers: dto.total_numbers,
+        title: data.title,
+        description: data.description,
+        ticket_price: data.ticket_price,
+        total_numbers: data.total_numbers,
+        image_url: data.image_url,
       },
     });
   }
-  async get_raffles() {
-  return this.prisma.raffle.findMany({
-    where: {
-      is_active: true,
-    },
-    orderBy: {
-      created_at: 'desc',
-    },
-  });
-}
 }

@@ -16,14 +16,14 @@ export class AdminService {
       throw new BadRequestException('El email ya existe');
     }
 
-    const hashed_password = await bcrypt.hash(dto.password, 10);
+    const hashedPassword = await bcrypt.hash(dto.password, 10);
 
     return this.prisma.user.create({
       data: {
         name: dto.name,
         email: dto.email,
         phone: dto.phone,
-        password: hashed_password,
+        password: hashedPassword,
         role: dto.role,
       },
     });

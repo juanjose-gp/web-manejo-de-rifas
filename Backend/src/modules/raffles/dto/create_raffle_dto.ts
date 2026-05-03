@@ -14,4 +14,3 @@ export class CreateRaffleDto {
   @IsNumber()
   total_numbers!: number;
 }
-``

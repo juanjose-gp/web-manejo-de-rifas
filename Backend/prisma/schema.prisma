@@ -29,10 +29,11 @@ model Raffle {
   description   String?
   ticket_price  Float
   total_numbers Int
+  image_url     String?      
   is_active     Boolean  @default(true)
   created_at    DateTime @default(now())
 
-  tickets       Ticket[]   
+  tickets       Ticket[]
 }
 
 

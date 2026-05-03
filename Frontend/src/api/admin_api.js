@@ -1,19 +1,16 @@
-const API_URL = 'http://localhost:3000';
-
-export async function create_user_admin(token, user_data) {
-  const response = await fetch(`${API_URL}/admin/users`, {
+export async function login(email, password) {
+  const response = await fetch('http://localhost:3000/auth/login', {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-    },
-    body: JSON.stringify(user_data),
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, password }),
   });
 
+  const data = await response.json();
+
   if (!response.ok) {
-    const error = await response.json();
-    throw error;
+    throw new Error(data.message || 'Error al iniciar sesión');
   }
 
-  return response.json();
+  return data;
 }
+``
