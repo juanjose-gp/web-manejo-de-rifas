@@ -8,7 +8,7 @@ export default function Header({ cartCount, onCartClick }) {
         <h1 className="text-xl font-bold">Rifas</h1>
 
         <div className="flex items-center gap-6">
-          <Link to="/admin/login">
+          <Link to="/login">
             <UserIcon className="h-6 w-6" />
           </Link>
 

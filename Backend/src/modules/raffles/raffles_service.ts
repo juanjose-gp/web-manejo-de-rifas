@@ -5,12 +5,19 @@ import { PrismaService } from '../../prisma/prisma.service';
 export class RafflesService {
   constructor(private prisma: PrismaService) {}
 
+  /* =========================
+     HOME - RIFAS PÚBLICAS
+     ========================= */
   async get_raffles() {
     return this.prisma.raffle.findMany({
+      where: { is_active: true },
       orderBy: { id: 'desc' },
     });
   }
 
+  /* =========================
+     ADMIN - CREAR RIFA
+     ========================= */
   async create_raffle(data: {
     title: string;
     description?: string;
@@ -19,13 +26,47 @@ export class RafflesService {
     image_url?: string;
   }) {
     return this.prisma.raffle.create({
-      data: {
-        title: data.title,
-        description: data.description,
-        ticket_price: data.ticket_price,
-        total_numbers: data.total_numbers,
-        image_url: data.image_url,
+      data,
+    });
+  }
+
+  /* =========================
+     ADMIN - VER TODAS LAS RIFAS
+     ========================= */
+  async get_admin_raffles() {
+    return this.prisma.raffle.findMany({
+      orderBy: { id: 'desc' },
+      include: {
+        tickets: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+              },
+            },
+          },
+        },
       },
     });
   }
+
+  /* =========================
+     ADMIN - ACT / DESACT
+     ========================= */
+  async toggle_raffle(id: number) {
+  const raffle = await this.prisma.raffle.findUnique({
+    where: { id },
+  });
+
+  if (!raffle) {
+    throw new Error('Rifa no encontrada');
+  }
+
+  return this.prisma.raffle.update({
+    where: { id },
+    data: { is_active: !raffle.is_active },
+  });
+}
 }

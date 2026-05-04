@@ -1,8 +1,9 @@
 const API_URL = 'http://localhost:3000';
 
-/**
- * Obtener todas las rifas (público)
- */
+/* ========================== */
+/* 🔓 PÚBLICO (HOME)          */
+/* ========================== */
+
 export async function get_raffles() {
   const response = await fetch(`${API_URL}/raffles`);
 
@@ -11,27 +12,46 @@ export async function get_raffles() {
   }
 
   const data = await response.json();
-
-  // ✅ defensa absoluta
   return Array.isArray(data) ? data : [];
 }
 
+/* ========================== */
+/* 🔐 ADMINISTRACIÓN          */
+/* ========================== */
+
 /**
- * Crear una rifa (ADMIN)
+ * Obtener rifas con ventas (ADMIN)
  */
-export async function create_raffle(raffle_data, token) {
-  const response = await fetch(`${API_URL}/raffles`, {
-    method: 'POST',
+export async function getAdminRaffles(token) {
+  const response = await fetch(`${API_URL}/raffles/admin/raffles`, {
     headers: {
-      'Content-Type': 'application/json',
       Authorization: `Bearer ${token}`,
     },
-    body: JSON.stringify(raffle_data),
   });
 
   if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.message || 'Error al crear la rifa');
+    throw new Error('Error al cargar rifas del admin');
+  }
+
+  return response.json();
+}
+
+/**
+ * Activar / desactivar rifa
+ */
+export async function toggleRaffle(id, token) {
+  const response = await fetch(
+    `${API_URL}/raffles/admin/raffles/${id}/toggle`,
+    {
+      method: 'PATCH',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error('Error al cambiar estado de la rifa');
   }
 
   return response.json();

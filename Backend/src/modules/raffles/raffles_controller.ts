@@ -6,11 +6,14 @@ import {
   UseInterceptors,
   UploadedFile,
   Get,
+  Patch,
+  Param,
 } from '@nestjs/common';
 
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
+
 import { RafflesService } from './raffles_service';
 import { JwtGuard } from '../auth/guards/jwt_guard';
 import { RolesGuard } from '../auth/guards/roles_guard';
@@ -21,11 +24,17 @@ import { CreateRaffleDto } from './dto/create_raffle_dto';
 export class RafflesController {
   constructor(private readonly raffles_service: RafflesService) {}
 
+  /* =========================
+     PUBLIC - HOME
+     ========================= */
   @Get()
   get_raffles() {
     return this.raffles_service.get_raffles();
   }
 
+  /* =========================
+     ADMIN - CREAR RIFA
+     ========================= */
   @Post()
   @UseGuards(JwtGuard, RolesGuard)
   @Roles('ADMIN')
@@ -34,7 +43,8 @@ export class RafflesController {
       storage: diskStorage({
         destination: './uploads/raffles',
         filename: (_req, file, cb) => {
-          const uniqueName = Date.now() + '-' + Math.round(Math.random() * 1e9);
+          const uniqueName =
+            Date.now() + '-' + Math.round(Math.random() * 1e9);
           cb(null, uniqueName + extname(file.originalname));
         },
       }),
@@ -55,5 +65,25 @@ export class RafflesController {
       total_numbers: Number(dto.total_numbers),
       image_url,
     });
+  }
+
+  /* =========================
+     ADMIN - VER RIFAS
+     ========================= */
+  @Get('admin/raffles')
+  @UseGuards(JwtGuard, RolesGuard)
+  @Roles('ADMIN')
+  get_admin_raffles() {
+    return this.raffles_service.get_admin_raffles();
+  }
+
+  /* =========================
+     ADMIN - ACTIVAR / DESACTIVAR
+     ========================= */
+  @Patch('admin/raffles/:id/toggle')
+  @UseGuards(JwtGuard, RolesGuard)
+  @Roles('ADMIN')
+  toggle_raffle(@Param('id') id: string) {
+    return this.raffles_service.toggle_raffle(Number(id));
   }
 }
