@@ -1,7 +1,9 @@
 import RaffleForm from '../../components/admin/form_raffle';
+import { useNavigate } from "react-router-dom";
 
 export default function CreateRafflePage() {
   const token = localStorage.getItem('token');
+  const navigate = useNavigate();
 
   async function handle_create_raffle(form) {
     console.log(' fetch ejecutándose');
@@ -32,7 +34,8 @@ export default function CreateRafflePage() {
     }
 
     alert('Rifa creada correctamente');
+    navigate("/admin");
   }
 
-  return <RaffleForm on_submit={handle_create_raffle} />;
+  return <RaffleForm onSubmit={handle_create_raffle} />;
 }

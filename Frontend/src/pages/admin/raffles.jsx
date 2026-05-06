@@ -39,7 +39,7 @@ export default function AdminRaffles() {
         </div>
       )}
 
-      <RaffleForm on_submit={handle_create_raffle} />
+      <RaffleForm onSubmit={handle_create_raffle} />
     </div>
   );
 }

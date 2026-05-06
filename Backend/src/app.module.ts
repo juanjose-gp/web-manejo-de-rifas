@@ -1,9 +1,8 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
-
 import { AuthModule } from './modules/auth/auth.module';
-import { PrismaModule } from './prisma/prisma.module';
+import { PrismaModule } from '../prisma/prisma_module';
 import { AdminModule } from './modules/admin/admin_module';
 
 import { RafflesModule } from './modules/raffles/raffles_module';

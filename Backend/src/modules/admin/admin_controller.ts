@@ -6,20 +6,26 @@ import { AdminService } from './admin_service';
 import { CreateUserAdminDto } from './dto/create_user_admin_dto';
 
 @Controller('admin')
+@UseGuards(JwtGuard, RolesGuard)
+@Roles('ADMIN')
 export class AdminController {
   constructor(private readonly adminService: AdminService) {}
 
+  /* ========= DASHBOARD ADMIN ========= */
   @Get('dashboard')
-  @UseGuards(JwtGuard, RolesGuard)
-  @Roles('ADMIN')
   get_dashboard() {
     return { message: 'Bienvenido ADMIN, acceso permitido' };
   }
 
+  /* ========= CREAR ADMIN / USER ========= */
   @Post('users')
-  @UseGuards(JwtGuard, RolesGuard)
-  @Roles('ADMIN')
   create_user(@Body() dto: CreateUserAdminDto) {
     return this.adminService.create_user(dto);
+  }
+
+  /* ========= CREAR PATROCINADOR ========= */
+  @Post('sponsors')
+  create_sponsor(@Body() dto: CreateUserAdminDto) {
+    return this.adminService.create_sponsor(dto);
   }
 }

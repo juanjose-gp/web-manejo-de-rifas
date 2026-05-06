@@ -15,7 +15,7 @@ export default function AdminUsers() {
 
   return (
     <div className="min-h-screen p-10 text-white">
-      <CreateUserForm on_submit={handle_create_user} />
+      <CreateUserForm onSubmit={handle_create_user} />
     </div>
   );
 }

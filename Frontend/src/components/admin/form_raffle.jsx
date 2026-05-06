@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-export default function RaffleForm({ on_submit }) {
+export default function RaffleForm({ onSubmit }) {
   const [form, set_form] = useState({
     title: '',
     description: '',
@@ -32,7 +32,7 @@ export default function RaffleForm({ on_submit }) {
 function handle_submit(e) {
   e.preventDefault();
   console.log(' handle_submit ejecutado', form);
-  on_submit(form);
+  onSubmit(form);
 }
 
 

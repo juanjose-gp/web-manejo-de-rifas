@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../prisma/prisma.service';
+import { PrismaService } from '../../../prisma/prisma_service';
 
 @Injectable()
 export class RafflesService {
@@ -10,7 +10,9 @@ export class RafflesService {
      ========================= */
   async get_raffles() {
     return this.prisma.raffle.findMany({
-      where: { is_active: true },
+      where: {
+        is_active: true, 
+      },
       orderBy: { id: 'desc' },
     });
   }
@@ -56,17 +58,17 @@ export class RafflesService {
      ADMIN - ACT / DESACT
      ========================= */
   async toggle_raffle(id: number) {
-  const raffle = await this.prisma.raffle.findUnique({
-    where: { id },
-  });
+    const raffle = await this.prisma.raffle.findUnique({
+      where: { id },
+    });
 
-  if (!raffle) {
-    throw new Error('Rifa no encontrada');
+    if (!raffle) {
+      throw new Error('Rifa no encontrada');
+    }
+
+    return this.prisma.raffle.update({
+      where: { id },
+      data: { is_active: !raffle.is_active },
+    });
   }
-
-  return this.prisma.raffle.update({
-    where: { id },
-    data: { is_active: !raffle.is_active },
-  });
-}
 }

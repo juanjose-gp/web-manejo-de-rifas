@@ -1,12 +1,12 @@
-import { useState } from 'react';
-import { login } from '../../api/auth_api';
-import Background from '../../components/layout/background';
-import { useNavigate } from 'react-router-dom'
+import { useState } from "react";
+import { login } from "../../api/auth_api";
+import Background from "../../components/layout/background";
+import { useNavigate } from "react-router-dom";
 
-export default function AdminLogin({ on_login_success }) {
+export default function Login() {
   const navigate = useNavigate();
-  const [email, set_email] = useState('');
-  const [password, set_password] = useState('');
+  const [email, set_email] = useState("");
+  const [password, set_password] = useState("");
   const [error, set_error] = useState(null);
 
   async function handle_submit(e) {
@@ -16,12 +16,23 @@ export default function AdminLogin({ on_login_success }) {
     try {
       const data = await login(email, password);
 
-      if (data.user.role !== 'ADMIN') {
-        throw new Error('No tienes permisos de administrador');
-      }
+      // guardar token
+      localStorage.setItem("token", data.access_token);
+      localStorage.setItem("user", JSON.stringify(data.user));
 
-     localStorage.setItem('token', data.access_token);
-    navigate('/admin');
+      // redirigir según rol
+      switch (data.user.role) {
+        case "ADMIN":
+          navigate("/admin");
+          break;
+
+        case "SPONSOR":
+          navigate("/patrocinador/validar codigo");
+          break;
+
+        default:
+          throw new Error("Usuario sin permisos");
+      }
     } catch (err) {
       set_error(err.message);
     }
@@ -34,13 +45,9 @@ export default function AdminLogin({ on_login_success }) {
           onSubmit={handle_submit}
           className="w-full max-w-sm space-y-4 rounded-xl bg-white/5 backdrop-blur p-6 border border-white/10 text-white"
         >
-          <h2 className="text-xl font-semibold text-center">
-            Login Administrador
-          </h2>
+          <h2 className="text-xl font-semibold text-center">Iniciar sesión</h2>
 
-          {error && (
-            <p className="text-red-400 text-sm text-center">{error}</p>
-          )}
+          {error && <p className="text-red-400 text-sm text-center">{error}</p>}
 
           <input
             className="w-full rounded bg-black/40 p-2"

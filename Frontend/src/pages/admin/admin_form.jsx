@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-export default function CreateUserForm({ on_submit }) {
+export default function CreateUserForm({ onSubmit }) {
   const [form, set_form] = useState({
     name: '',
     email: '',
@@ -18,7 +18,7 @@ export default function CreateUserForm({ on_submit }) {
 
   function handle_submit(e) {
     e.preventDefault();
-    on_submit(form);
+    onSubmit(form);
   }
 
   return (

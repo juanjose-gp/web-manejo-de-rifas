@@ -12,10 +12,6 @@ export default function Header({ cartCount, onCartClick }) {
             <UserIcon className="h-6 w-6" />
           </Link>
 
-          <Link to="/sponsor/login" className="text-sm">
-            Sponsor
-          </Link>
-
           <button onClick={onCartClick} className="relative">
             <ShoppingBagIcon className="h-7 w-7" />
 
