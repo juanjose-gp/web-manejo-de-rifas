@@ -6,7 +6,10 @@ import AdminDashboard from "./pages/admin/dashboard";
 import CreateRafflePage from "./pages/admin/create_raffle";
 import CreateSponsorPage from "./pages/admin/patrocinador_form";
 import ValidarCodigoDescuento from "./pages/patrocinador/validar_cod_descuento";
-
+import ValidarNumBoleta from "./pages/users/validar_num_boleta";
+import PrivacyPolicy from "./pages/legal/privacy";
+import TermsAndConditions from "./pages/legal/terms";
+import FaqPage from "./pages/help/faq";
 import ProtectedRoute from "./components/auth/protected_route";
 
 export default function App() {
@@ -16,6 +19,10 @@ export default function App() {
         {/* Público */}
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/buscar_boletas" element={<ValidarNumBoleta />} />
+        <Route path="/politicas_de_privacidad" element={<PrivacyPolicy />} />
+        <Route path="terminos_y_condiciones" element={<TermsAndConditions />} />
+        <Route path="/preguntas_frecuentes" element={<FaqPage />} />
 
         {/* ADMIN */}
         <Route
