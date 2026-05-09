@@ -10,6 +10,8 @@ import ValidarNumBoleta from "./pages/users/validar_num_boleta";
 import PrivacyPolicy from "./pages/legal/privacy";
 import TermsAndConditions from "./pages/legal/terms";
 import FaqPage from "./pages/help/faq";
+import SeleccionarNumeros from "./pages/users/select_num";
+import Checkout from "./pages/users/checkout";
 import ProtectedRoute from "./components/auth/protected_route";
 
 export default function App() {
@@ -21,9 +23,10 @@ export default function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/buscar_boletas" element={<ValidarNumBoleta />} />
         <Route path="/politicas_de_privacidad" element={<PrivacyPolicy />} />
-        <Route path="terminos_y_condiciones" element={<TermsAndConditions />} />
+        <Route path="/terminos_y_condiciones" element={<TermsAndConditions />} />
         <Route path="/preguntas_frecuentes" element={<FaqPage />} />
-
+        <Route path="/rifas/:raffleId/seleccionar_numeros" element={<SeleccionarNumeros />}/>
+        <Route path="/checkout" element={<Checkout />} />
         {/* ADMIN */}
         <Route
           path="/admin"

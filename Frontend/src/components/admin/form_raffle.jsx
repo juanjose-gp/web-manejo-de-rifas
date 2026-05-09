@@ -1,187 +1,224 @@
-import { useState } from 'react';
+import { useState } from "react";
 
 export default function RaffleForm({ onSubmit }) {
-  const [form, set_form] = useState({
-    title: '',
-    description: '',
-    ticket_price: '',
+  const [form, setForm] = useState({
+    title: "",
+    description: "",
+    ticket_price: "",
     total_numbers: 100,
     image: null,
+    stickers: [
+      {
+        sticker_image: null,
+        sticker_expiration: "",
+        discount_code: "",
+        patrocinador: "",
+        discount_description: "",
+      },
+    ],
   });
 
-  function handle_change(e) {
+  /* =========================
+     HANDLERS GENERALES
+     ========================= */
+  function handleChange(e) {
     const { name, value } = e.target;
-    
-    set_form({
+    setForm({
       ...form,
-      
       [name]:
-        name === 'ticket_price' || name === 'total_numbers'
+        name === "ticket_price" || name === "total_numbers"
           ? Number(value)
           : value,
-          
     });
-   
   }
 
-  function handle_image_change(e) {
-    set_form({ ...form, image: e.target.files[0] });
+  function handleImageChange(e) {
+    setForm({ ...form, image: e.target.files[0] });
   }
 
- 
-function handle_submit(e) {
-  e.preventDefault();
-  console.log(' handle_submit ejecutado', form);
-  onSubmit(form);
-}
+  /* =========================
+     STICKERS
+     ========================= */
+  function handleStickerChange(index, e) {
+    const { name, value } = e.target;
+    const stickers = [...form.stickers];
+    stickers[index][name] = value;
+    setForm({ ...form, stickers });
+  }
 
+  function handleStickerImage(index, file) {
+    const stickers = [...form.stickers];
+    stickers[index].sticker_image = file;
+    setForm({ ...form, stickers });
+  }
+
+  function addSticker() {
+    if (form.total_numbers === 100) {
+      setForm({
+        ...form,
+        stickers: [
+          ...form.stickers,
+          {
+            sticker_image: null,
+            sticker_expiration: "",
+            discount_code: "",
+            patrocinador: "",
+            discount_description: "",
+          },
+        ],
+      });
+    }
+  }
+
+  /* =========================
+     SUBMIT + VALIDACIÓN
+     ========================= */
+  function handleSubmit(e) {
+    e.preventDefault();
+
+    // Validar códigos duplicados (HTML no puede hacerlo)
+    const codes = form.stickers.map((s) => s.discount_code.trim());
+    const hasDuplicates = new Set(codes).size !== codes.length;
+
+    const codeInput = e.target.querySelector('[name="discount_code"]');
+
+    if (hasDuplicates) {
+      codeInput.setCustomValidity(
+        "No puedes repetir códigos de descuento"
+      );
+      codeInput.reportValidity();
+      return;
+    }
+
+    codeInput.setCustomValidity("");
+    onSubmit(form);
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
       <form
-        onSubmit={handle_submit}
-        className="
-          w-full max-w-md
-          bg-white
-          rounded-2xl
-          shadow-lg
-          p-8
-          space-y-6
-        "
+        onSubmit={handleSubmit}
+        className="w-full max-w-md bg-white rounded-2xl shadow-lg p-8 space-y-6"
       >
         <h2 className="text-2xl font-semibold text-gray-900 text-center">
           Crear rifa
         </h2>
 
-        {/* Título */}
-        <div className="space-y-1">
-          <label className="text-sm text-gray-600">Título</label>
-          <input
-            name="title"
-            onChange={handle_change}
-            required
-            placeholder="Ej: Rifa Moto 0km"
-            className="
-              w-full h-11
-              rounded-md
-              border border-gray-300
-              px-3
-              text-gray-900
-              placeholder-gray-400
-              focus:outline-none
-              focus:ring-2 focus:ring-blue-500
-              focus:border-blue-500
-            "
-          />
-        </div>
+        {/* Datos básicos */}
+        <input
+          name="title"
+          placeholder="Título"
+          required
+          onChange={handleChange}
+          className="w-full h-11 border rounded px-3"
+        />
 
-        {/* Descripción */}
-        <div className="space-y-1">
-          <label className="text-sm text-gray-600">Descripción</label>
-          <textarea
-            name="description"
-            rows={4}
-            onChange={handle_change}
-            placeholder="Describe la rifa"
-            className="
-              w-full
-              rounded-md
-              border border-gray-300
-              px-3 py-2
-              text-gray-900
-              placeholder-gray-400
-              resize-none
-              focus:outline-none
-              focus:ring-2 focus:ring-blue-500
-              focus:border-blue-500
-            "
-          />
-        </div>
+        <textarea
+          name="description"
+          placeholder="Descripción"
+          onChange={handleChange}
+          className="w-full border rounded px-3 py-2"
+        />
 
-        {/* Precio y números */}
         <div className="grid grid-cols-2 gap-4">
-          <div className="space-y-1">
-            <label className="text-sm text-gray-600">Precio</label>
-            <input
-              name="ticket_price"
-              type="number"
-              min="0"
-              onChange={handle_change}
-              placeholder="$"
-              className="
-                w-full h-11
-                rounded-md
-                border border-gray-300
-                px-3
-                text-gray-900
-                placeholder-gray-400
-                focus:outline-none
-                focus:ring-2 focus:ring-blue-500
-                focus:border-blue-500
-              "
-            />
-          </div>
-
-          <div className="space-y-1">
-            <label className="text-sm text-gray-600">Números</label>
-            <select
-              name="total_numbers"
-              value={form.total_numbers}
-              onChange={handle_change}
-              className="
-                w-full h-11
-                rounded-md
-                border border-gray-300
-                px-3
-                text-gray-900
-                focus:outline-none
-                focus:ring-2 focus:ring-blue-500
-                focus:border-blue-500
-              "
-            >
-              <option value={100}>100</option>
-              <option value={1000}>1000</option>
-            </select>
-          </div>
-        </div>
-
-        {/* Imagen */}
-        <div className="space-y-2">
-          <label className="text-sm text-gray-600">
-            Imagen de la rifa
-          </label>
           <input
-            type="file"
-            accept="image/*"
-            onChange={handle_image_change}
-            className="
-              block w-full
-              text-sm text-gray-700
-              file:mr-3
-              file:rounded-md
-              file:border-0
-              file:bg-blue-600
-              file:px-4
-              file:py-2
-              file:text-white
-              hover:file:bg-blue-700
-            "
+            name="ticket_price"
+            type="number"
+            min="1"
+            required
+            onChange={handleChange}
+            placeholder="Precio"
+            className="h-11 border rounded px-3"
           />
+
+          <select
+            name="total_numbers"
+            value={form.total_numbers}
+            onChange={handleChange}
+            className="h-11 border rounded px-3"
+          >
+            <option value={100}>100</option>
+            <option value={1000}>1000</option>
+          </select>
         </div>
 
-        {/* Botón */}
+        {/* Imagen rifa */}
+        <input
+          type="file"
+          accept="image/*"
+          required
+          onChange={handleImageChange}
+        />
+
+        {/* Stickers */}
+        <div className="border-t pt-6 space-y-4">
+          <h3 className="text-xl font-semibold text-center">Stickers</h3>
+
+          {form.stickers.map((sticker, index) => (
+            <div
+              key={index}
+              className="border rounded-lg p-4 space-y-2 bg-gray-50"
+            >
+              <strong>Sticker #{index + 1}</strong>
+
+              <input
+                type="date"
+                name="sticker_expiration"
+                required
+                onChange={(e) => handleStickerChange(index, e)}
+                className="w-full h-10 border rounded px-3"
+              />
+
+              <input
+                type="file"
+                accept="image/*"
+                required
+                onChange={(e) =>
+                  handleStickerImage(index, e.target.files[0])
+                }
+              />
+
+              <input
+                name="discount_code"
+                required
+                onChange={(e) => handleStickerChange(index, e)}
+                placeholder="Descuento ej: 10%"
+                className="w-full h-10 border rounded px-3"
+              />
+
+              <input
+                name="patrocinador"
+                required
+                onChange={(e) => handleStickerChange(index, e)}
+                placeholder="Patrocinador"
+                className="w-full h-10 border rounded px-3"
+              />
+
+              <textarea
+                name="discount_description"
+                required
+                rows={2}
+                onChange={(e) => handleStickerChange(index, e)}
+                placeholder="Descripción"
+                className="w-full border rounded px-3 py-2"
+              />
+            </div>
+          ))}
+
+          {form.total_numbers === 100 && (
+            <button
+              type="button"
+              onClick={addSticker}
+              className="w-full py-2 bg-green-600 text-white rounded hover:bg-green-700"
+            >
+              + Agregar otro sticker
+            </button>
+          )}
+        </div>
+
         <button
           type="submit"
-          className="
-            w-full
-            h-11
-            rounded-md
-            bg-blue-600
-            text-white
-            font-semibold
-            transition
-            hover:bg-blue-700
-          "
+          className="w-full h-11 bg-blue-600 text-white rounded"
         >
           CREAR RIFA
         </button>

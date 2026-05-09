@@ -5,9 +5,14 @@ import { PrismaService } from '../../prisma/prisma_service';
 export class DiscountsService {
   constructor(private prisma: PrismaService) {}
 
-  async validate(code: string) {
+  async validate(raffleId: number, code: string) {
     const discount = await this.prisma.discountCode.findUnique({
-      where: { code },
+      where: {
+        raffleId_code: {
+          raffleId,
+          code,
+        },
+      },
     });
 
     if (!discount) {

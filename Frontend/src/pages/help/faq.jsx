@@ -6,7 +6,7 @@ export default function FaqPage() {
     <>
       <Header />
 
-      <main className="min-h-screen bg-slate-100 px-6 py-20">
+      <main className="min-h-screen  px-6 py-20">
         <div className="max-w-4xl mx-auto bg-white rounded-xl shadow p-8 space-y-8">
           
           <h1 className="text-3xl font-bold text-slate-800 text-center">

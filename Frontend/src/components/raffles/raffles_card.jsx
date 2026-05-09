@@ -14,7 +14,7 @@ export default function RaffleCard({ raffle, onBuy }) {
     >
       {/* Imagen */}
       {raffle.image_url && (
-        <div className="h-40 w-full overflow-hidden bg-black/20">
+        <div className="h-64 w-full overflow-hidden bg-black/20">
           <img
             src={raffle.image_url}
             alt={raffle.title}
@@ -45,7 +45,7 @@ export default function RaffleCard({ raffle, onBuy }) {
       <button
         onClick={() => {
           console.log('🛒 click comprar', raffle.id);
-          onBuy();
+          onBuy(raffle);
         }}
         className="mt-3 w-full rounded bg-blue-500 py-2 text-white"
       >

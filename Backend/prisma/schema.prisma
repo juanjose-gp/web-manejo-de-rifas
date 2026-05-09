@@ -34,7 +34,9 @@ model Raffle {
   created_at    DateTime @default(now())
 
   tickets       Ticket[]
+  discountCodes DiscountCode[]
 }
+
 
 
 model Ticket {
@@ -43,10 +45,25 @@ model Ticket {
   raffleId  Int
   userId    Int?
   paymentId Int?
+
+  status     TicketStatus @default(AVAILABLE)
+  reservedAt DateTime?
+  expiresAt  DateTime?
+
   raffle    Raffle   @relation(fields: [raffleId], references: [id])
   user      User?    @relation(fields: [userId], references: [id])
+
   createdAt DateTime @default(now())
+
+  @@unique([raffleId, number])
 }
+
+enum TicketStatus {
+  AVAILABLE
+  RESERVED
+  SOLD
+}
+
 
 model Payment {
   id        Int      @id @default(autoincrement())
@@ -57,9 +74,20 @@ model Payment {
 }
 
 model DiscountCode {
-  id         Int      @id @default(autoincrement())
-  code       String   @unique
-  isActive   Boolean  @default(true)
-  usedAt     DateTime?
-  createdAt DateTime @default(now())
+  id            Int      @id @default(autoincrement())
+  code          String
+  description   String?
+  image_url     String?
+  expiresAt     DateTime?
+  isActive      Boolean  @default(true)
+
+  raffleId      Int
+  raffle        Raffle   @relation(fields: [raffleId], references: [id])
+
+  @@unique([raffleId, code])  
+
+  usedAt        DateTime?
+  validatedBy   Int?
+
+  createdAt     DateTime @default(now())
 }
