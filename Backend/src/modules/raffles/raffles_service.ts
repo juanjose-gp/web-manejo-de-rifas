@@ -1,5 +1,6 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma_service';
+import { generateValidationCode } from '../../common/code';
 
 @Injectable()
 export class RafflesService {
@@ -32,13 +33,50 @@ export class RafflesService {
      ADMIN
      ========================= */
   async create_raffle(data: any) {
-    return this.prisma.raffle.create({ data });
+    return this.prisma.$transaction(async (tx) => {
+      //  Crear la rifa
+      const raffle = await tx.raffle.create({
+        data: {
+          title: data.title,
+          description: data.description,
+          ticket_price: Number(data.ticket_price),
+          total_numbers: Number(data.total_numbers),
+          image_url: data.image_url,
+        },
+      });
+
+      //  Crear los stickers asociados
+      if (Array.isArray(data.stickers)) {
+        for (const sticker of data.stickers) {
+          await tx.discountCode.create({
+            data: {
+              code: sticker.code,
+              description: sticker.description,
+              patrocinador: sticker.patrocinador ?? null,
+              image_url: sticker.image_url,
+              expiresAt: sticker.expiresAt,
+              raffleId: raffle.id,
+              isActive: true,
+            },
+          });
+        }
+      }
+
+      return raffle;
+    });
   }
 
   async get_admin_raffles() {
     return this.prisma.raffle.findMany({
       orderBy: { id: 'desc' },
-      include: { tickets: true },
+      include: {
+        purchases: {
+          include: {
+            tickets: true,
+            discountCode: true,
+          },
+        },
+      },
     });
   }
 
@@ -55,11 +93,7 @@ export class RafflesService {
   /* =========================
      USER - RESERVAR
      ========================= */
-  async reserve_numbers(
-  raffleId: number,
-  numbers: number[],
-) 
- {
+  async reserve_numbers(raffleId: number, numbers: number[]) {
     if (!numbers.length)
       throw new BadRequestException('No se enviaron números');
 
@@ -113,8 +147,7 @@ export class RafflesService {
       const raffle = await tx.raffle.findUnique({
         where: { id: raffleId },
       });
-      if (!raffle)
-        throw new BadRequestException('Rifa no encontrada');
+      if (!raffle) throw new BadRequestException('Rifa no encontrada');
 
       const tickets = await tx.ticket.findMany({
         where: {
@@ -130,15 +163,41 @@ export class RafflesService {
 
       const totalAmount = raffle.ticket_price * numbers.length;
 
+      /* =========================
+       GENERAR CÓDIGO DE VALIDACIÓN
+       ========================= */
+      let validationCode: string | null = null;
+
+      if (stickerId) {
+        let unique = false;
+
+        while (!unique) {
+          const code = generateValidationCode();
+
+          const exists = await tx.purchase.findFirst({
+            where: { validationCode: code },
+          });
+
+          if (!exists) {
+            validationCode = code;
+            unique = true;
+          }
+        }
+      }
+
+      /* =========================
+       CREAR COMPRA
+       ========================= */
       const purchase = await tx.purchase.create({
         data: {
           raffleId,
           buyerName: buyer.name,
           buyerPhone: buyer.phone,
-          buyerEmail: buyer.email,
+          buyerEmail: buyer.email ?? null,
           totalAmount,
           status: 'PAID',
-          discountCodeId: stickerId ?? null
+          discountCodeId: stickerId ?? null,
+          validationCode, // ✅ AQUÍ SE GUARDA
         },
       });
 
@@ -155,6 +214,7 @@ export class RafflesService {
       return {
         success: true,
         purchaseId: purchase.id,
+        validationCode,
         raffle: raffle.title,
         numbers,
         buyer,

@@ -6,10 +6,23 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
 enum Role {
   USER
   ADMIN
   SPONSOR
+}
+
+enum TicketStatus {
+  AVAILABLE
+  RESERVED
+  SOLD
+}
+
+enum PurchaseStatus {
+  PENDING
+  PAID
+  CANCELLED
 }
 
 model User {
@@ -29,7 +42,7 @@ model Raffle {
   description   String?
   ticket_price  Float
   total_numbers Int
-  image_url     String?      
+  image_url     String?
   is_active     Boolean  @default(true)
   created_at    DateTime @default(now())
 
@@ -38,34 +51,71 @@ model Raffle {
   purchases     Purchase[]
 }
 
-
-
 model Ticket {
-  id        Int      @id @default(autoincrement())
-  number    Int
-  raffleId  Int
-  userId    Int?
-  paymentId Int?
+  id         Int      @id @default(autoincrement())
+  number     Int
+  raffleId   Int
+  userId     Int?
+  purchaseId Int?
 
   status     TicketStatus @default(AVAILABLE)
   reservedAt DateTime?
   expiresAt  DateTime?
 
-  raffle    Raffle   @relation(fields: [raffleId], references: [id])
-  user      User?    @relation(fields: [userId], references: [id])
-  purchaseId Int?
+  raffle     Raffle    @relation(fields: [raffleId], references: [id])
+  user       User?     @relation(fields: [userId], references: [id])
   purchase   Purchase? @relation(fields: [purchaseId], references: [id])
-  createdAt DateTime @default(now())
+
+  createdAt  DateTime @default(now())
 
   @@unique([raffleId, number])
 }
 
-enum TicketStatus {
-  AVAILABLE
-  RESERVED
-  SOLD
+model DiscountCode {
+  id            Int      @id @default(autoincrement())
+  code          String
+  description   String?
+  patrocinador  String?
+  image_url     String?
+  expiresAt     DateTime?
+  isActive      Boolean  @default(true)
+
+  raffleId      Int
+  raffle        Raffle   @relation(fields: [raffleId], references: [id])
+
+  purchases     Purchase[]
+
+  usedAt        DateTime?
+  validatedBy   Int?
+
+  createdAt     DateTime @default(now())
+
+  @@unique([raffleId, code])
 }
 
+model Purchase {
+  id                   Int      @id @default(autoincrement())
+  buyerName            String
+  buyerPhone           String
+  buyerEmail           String?
+  totalAmount          Float
+  status               PurchaseStatus
+
+  raffleId             Int
+  raffle               Raffle   @relation(fields: [raffleId], references: [id])
+
+  discountCodeId       Int?
+  discountCode         DiscountCode? @relation(fields: [discountCodeId], references: [id])
+
+  validationCode       String? @unique
+  validationCodeUsedAt DateTime?
+
+  paymentId            Int?    @unique
+  payment              Payment? @relation(fields: [paymentId], references: [id])
+
+  tickets              Ticket[]
+  createdAt            DateTime @default(now())
+}
 
 model Payment {
   id        Int      @id @default(autoincrement())
@@ -76,53 +126,4 @@ model Payment {
   createdAt DateTime @default(now())
 
   purchase  Purchase?
-}
-
-
-model DiscountCode {
-  id            Int      @id @default(autoincrement())
-  code          String
-  description   String?
-  image_url     String?
-  expiresAt     DateTime?
-  isActive      Boolean  @default(true)
-
-  raffleId      Int
-  raffle        Raffle   @relation(fields: [raffleId], references: [id])
-
-  @@unique([raffleId, code])  
-
-  usedAt        DateTime?
-  validatedBy   Int?
-
-  createdAt     DateTime @default(now())
-  purchases   Purchase[]
-}
-
-model Purchase {
-  id             Int      @id @default(autoincrement())
-  buyerName      String
-  buyerPhone     String
-  buyerEmail     String?
-  totalAmount    Float
-  status         PurchaseStatus
-
-  raffleId       Int
-  raffle         Raffle   @relation(fields: [raffleId], references: [id])
-
-  discountCodeId Int?
-  discountCode   DiscountCode? @relation(fields: [discountCodeId], references: [id])
-
-  paymentId      Int?     @unique   // ✅ ESTA ES LA CLAVE
-  payment        Payment? @relation(fields: [paymentId], references: [id])
-
-  tickets        Ticket[]
-  createdAt      DateTime @default(now())
-}
-
-
-enum PurchaseStatus {
-  PENDING
-  PAID
-  CANCELLED
 }

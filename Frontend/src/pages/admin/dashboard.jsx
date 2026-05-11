@@ -53,7 +53,7 @@ export default function AdminRafflesDashboard() {
         </div>
 
         <div className="bg-white rounded-xl shadow">
-          <div className="overflow-x-auto touch-pan-x">
+          <div className="overflow-x-auto">
             <table className="min-w-[1100px] w-full text-sm">
               <thead className="bg-slate-100 text-slate-700">
                 <tr>
@@ -66,18 +66,16 @@ export default function AdminRafflesDashboard() {
               </thead>
 
               <tbody>
-                {raffles.length === 0 && (
-                  <tr>
-                    <td colSpan={5} className="p-6 text-center text-slate-500">
-                      No hay rifas registradas
-                    </td>
-                  </tr>
-                )}
-
                 {raffles.map((r) => {
-                  const sold = r.tickets.length;
+                  const sold =
+                    r.purchases?.reduce(
+                      (acc, p) => acc + p.tickets.length,
+                      0,
+                    ) || 0;
+
                   const percent =
                     r.total_numbers > 0 ? (sold / r.total_numbers) * 100 : 0;
+
                   const money = sold * r.ticket_price;
                   const open = expanded === r.id;
 
@@ -87,7 +85,7 @@ export default function AdminRafflesDashboard() {
                         onClick={() => setExpanded(open ? null : r.id)}
                         className="border-t cursor-pointer hover:bg-slate-50"
                       >
-                        <td className="p-4 text-left font-medium">{r.title}</td>
+                        <td className="p-4 font-medium">{r.title}</td>
 
                         <td className="p-4 text-center">
                           {r.is_active ? (
@@ -130,24 +128,69 @@ export default function AdminRafflesDashboard() {
                       {open && (
                         <tr className="bg-slate-50 border-t">
                           <td colSpan={5} className="p-4">
-                            {r.tickets.length === 0 ? (
+                            {!r.purchases || r.purchases.length === 0 ? (
                               <p className="text-sm text-slate-500">
-                                Sin compras registradas para esta rifa.
+                                Sin compras registradas.
                               </p>
                             ) : (
-                              <div>
-                                <p className="text-sm font-semibold mb-2">
-                                  Compradores
-                                </p>
-                                <ul className="space-y-1 text-sm">
-                                  {r.tickets.map((t) => (
-                                    <li key={t.id}>
-                                      {t.user?.name ?? "Usuario"} – Número{" "}
-                                      {t.number}
-                                    </li>
+                              <table className="w-full text-sm">
+                                <thead>
+                                  <tr className="text-slate-600">
+                                    <th className="text-left py-2">
+                                      Comprador
+                                    </th>
+                                    <th className="text-left py-2">Teléfono</th>
+                                    <th className="text-left py-2">Números</th>
+                                    <th className="text-left py-2">
+                                      Descuento
+                                    </th>
+                                    <th className="text-left py-2">
+                                      Patrocinador
+                                    </th>
+                                    <th className="text-left py-2">Código</th>
+                                    <th className="text-left py-2">Vence</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  {r.purchases.map((p) => (
+                                    <tr key={p.id} className="border-t">
+                                      <td className="py-2">{p.buyerName}</td>
+
+                                      <td className="py-2">{p.buyerPhone}</td>
+
+                                      <td className="py-2">
+                                        {p.tickets
+                                          .map((t) =>
+                                            String(t.number).padStart(3, "0"),
+                                          )
+                                          .join(" - ")}
+                                      </td>
+
+                                      <td className="py-2">
+                                        {p.discountCode?.code ?? "—"}
+                                      </td>
+
+                                      <td className="py-2">
+                                        {p.discountCode?.patrocinador ?? "—"}
+                                      </td>
+
+                                      {/* ✅ NUEVO: CÓDIGO DE VALIDACIÓN */}
+                                      <td className="py-2 font-mono font-semibold text-blue-700">
+                                        {p.validationCode ?? "—"}
+                                      </td>
+
+                                      {/* ✅ NUEVO: FECHA DE VENCIMIENTO */}
+                                      <td className="py-2">
+                                        {p.discountCode?.expiresAt
+                                          ? new Date(
+                                              p.discountCode.expiresAt,
+                                            ).toLocaleDateString()
+                                          : "—"}
+                                      </td>
+                                    </tr>
                                   ))}
-                                </ul>
-                              </div>
+                                </tbody>
+                              </table>
                             )}
                           </td>
                         </tr>

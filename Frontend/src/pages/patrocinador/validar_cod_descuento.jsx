@@ -22,13 +22,25 @@ export default function ValidarCodigoDescuento() {
       const data = await res.json();
 
       if (!res.ok) {
-        setResult({ type: "error", message: data.message });
+        setResult({
+          type: "error",
+          message: data.message || "Código inválido",
+        });
         return;
       }
 
-      setResult({ type: "success", message: "Código válido " });
+      // Guardamos TODA la información útil
+      setResult({
+        type: "success",
+        data,
+      });
+
+      setCode("");
     } catch (err) {
-      setResult({ type: "error", message: "Error de conexión" });
+      setResult({
+        type: "error",
+        message: "Error de conexión con el servidor",
+      });
     }
   }
 
@@ -47,7 +59,8 @@ export default function ValidarCodigoDescuento() {
           onChange={(e) => setCode(e.target.value)}
           placeholder="Ingresa el código"
           required
-          className="w-full h-11 border rounded-md px-3 focus:ring-2 focus:ring-blue-500"
+          maxLength={4}
+          className="w-full h-11 border rounded-md px-3 text-center tracking-widest focus:ring-2 focus:ring-blue-500"
         />
 
         <button
@@ -57,16 +70,40 @@ export default function ValidarCodigoDescuento() {
           Validar código
         </button>
 
-        {result && (
-          <div
-            className={`text-center font-medium ${
-              result.type === "success" ? "text-green-600" : "text-red-500"
-            }`}
-          >
+        {/* RESULTADO */}
+        {result && result.type === "error" && (
+          <div className="text-center text-red-500 font-medium">
             {result.message}
+          </div>
+        )}
+
+        {result && result.type === "success" && (
+          <div className="bg-green-50 border border-green-200 rounded p-4 text-sm space-y-2">
+            <p className="text-green-700 font-semibold text-center">
+              Código validado correctamente
+            </p>
+
+            <p>
+              <strong>Comprador:</strong> {result.data.buyer}
+            </p>
+            <p>
+              <strong>Teléfono:</strong> {result.data.phone}
+            </p>
+            <p>
+              <strong>Descuento:</strong> {result.data.discount}
+            </p>
+            <p>
+              <strong>Patrocinador:</strong>{" "}
+              {result.data.patrocinador}
+            </p>
+
+            <p className="text-xs text-slate-500 text-center">
+              Código marcado como usado
+            </p>
           </div>
         )}
       </form>
     </div>
   );
 }
+``

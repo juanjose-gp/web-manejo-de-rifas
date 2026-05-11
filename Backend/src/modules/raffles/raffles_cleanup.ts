@@ -26,7 +26,7 @@ export class RafflesCleanupService {
         reservedAt: null,
         expiresAt: null,
         userId: null,
-        paymentId: null,
+        purchaseId: null,
       },
     });
 

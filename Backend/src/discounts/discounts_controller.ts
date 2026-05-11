@@ -1,8 +1,9 @@
-import { Controller, Post, Body, UseGuards} from '@nestjs/common';
+import { Controller, Post, Body, UseGuards } from '@nestjs/common';
+import { JwtGuard } from '../modules/auth/guards/jwt_guard';
 import { RolesGuard } from '../modules/auth/guards/roles_guard';
 import { Roles } from '../modules/auth/decorators/roles_decorator';
 import { ValidateDiscountDto } from './dto/validate_discounts_dto';
-import { JwtGuard } from '../modules/auth/guards/jwt_guard';
+import { DiscountsService } from './discounts_services';
 
 @Controller('discounts')
 export class DiscountsController {
@@ -12,7 +13,6 @@ export class DiscountsController {
   @UseGuards(JwtGuard, RolesGuard)
   @Roles('ADMIN', 'SPONSOR')
   validate(@Body() dto: ValidateDiscountDto) {
-    return this.service.validate(dto.raffleId, dto.code);
+    return this.service.validate(dto.code);
   }
 }
-import { DiscountsService } from './discounts_services';

@@ -27,7 +27,7 @@ export default function Login() {
           break;
 
         case "SPONSOR":
-          navigate("/patrocinador/validar codigo");
+          navigate("/patrocinador/validar_codigo");
           break;
 
         default:

@@ -5,24 +5,44 @@ import { PrismaService } from '../../prisma/prisma_service';
 export class DiscountsService {
   constructor(private prisma: PrismaService) {}
 
-  async validate(raffleId: number, code: string) {
-    const discount = await this.prisma.discountCode.findUnique({
-      where: {
-        raffleId_code: {
-          raffleId,
-          code,
-        },
+  async validate(code: string) {
+    const purchase = await this.prisma.purchase.findFirst({
+      where: { validationCode: code },
+      include: {
+        discountCode: true,
       },
     });
 
-    if (!discount) {
+    if (!purchase) {
       throw new BadRequestException('Código inválido');
     }
 
-    if (!discount.isActive || discount.usedAt) {
-      throw new BadRequestException('Código ya usado o inactivo');
+    if (purchase.validationCodeUsedAt) {
+      throw new BadRequestException('Este código ya fue utilizado');
     }
 
-    return { valid: true };
+    if (
+      purchase.discountCode?.expiresAt &&
+      purchase.discountCode.expiresAt < new Date()
+    ) {
+      throw new BadRequestException('El descuento está vencido');
+    }
+
+    // Marcar como usado
+    await this.prisma.purchase.update({
+      where: { id: purchase.id },
+      data: {
+        validationCodeUsedAt: new Date(),
+      },
+    });
+
+    return {
+      valid: true,
+      buyer: purchase.buyerName,
+      phone: purchase.buyerPhone,
+      discount: purchase.discountCode?.code,
+      patrocinador: purchase.discountCode?.patrocinador,
+      usedAt: new Date(),
+    };
   }
 }

@@ -8,6 +8,7 @@ import { PaymentsModule } from './modules/payments/payments_module';
 import { RafflesModule } from './modules/raffles/raffles_module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { PurchasesModule } from './purchases/purchases_module';
+import { DiscountsModule } from './discounts/discounts_module'
 
 @Module({
   imports: [
@@ -25,6 +26,8 @@ import { PurchasesModule } from './purchases/purchases_module';
     RafflesModule,
     PaymentsModule,
     PurchasesModule,
+    DiscountsModule,
+
   ],
 })
 export class AppModule {}
