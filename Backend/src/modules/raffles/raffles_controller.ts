@@ -8,21 +8,17 @@ import {
   Get,
   Patch,
   Param,
+  Req,
 } from '@nestjs/common';
 
-import {
-  FileInterceptor,
-  FileFieldsInterceptor,
-} from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
+import { AnyFilesInterceptor } from '@nestjs/platform-express';
+
 import { RafflesService } from './raffles_service';
 import { JwtGuard } from '../auth/guards/jwt_guard';
 import { RolesGuard } from '../auth/guards/roles_guard';
 import { Roles } from '../auth/decorators/roles_decorator';
-import { CreateRaffleDto } from './dto/create_raffle_dto';
-import { Req } from '@nestjs/common';
-import { AnyFilesInterceptor } from '@nestjs/platform-express';
 
 @Controller('raffles')
 export class RafflesController {
@@ -37,56 +33,52 @@ export class RafflesController {
   }
 
   /* =========================
+     PUBLIC - VER RIFA
+     ========================= */
+  @Get(':id')
+  get_raffle(@Param('id') id: string) {
+    return this.raffles_service.get_raffle_for_selection(Number(id));
+  }
+
+  /* =========================
      ADMIN - CREAR RIFA
      ========================= */
   @Post()
-@UseGuards(JwtGuard, RolesGuard)
-@Roles('ADMIN')
-@UseInterceptors(
-  AnyFilesInterceptor({
-    storage: diskStorage({
-      destination: (_req, file, cb) => {
-        if (file.fieldname === 'sticker_images') {
-          cb(null, './uploads/stickers');
-        } else {
-          cb(null, './uploads/raffles');
-        }
-      },
-      filename: (_req, file, cb) => {
-        const uniqueName =
-          Date.now() + '-' + Math.round(Math.random() * 1e9);
-        cb(null, uniqueName + extname(file.originalname));
-      },
+  @UseGuards(JwtGuard, RolesGuard)
+  @Roles('ADMIN')
+  @UseInterceptors(
+    AnyFilesInterceptor({
+      storage: diskStorage({
+        destination: (_req, file, cb) => {
+          if (file.fieldname === 'sticker_images') {
+            cb(null, './uploads/stickers');
+          } else {
+            cb(null, './uploads/raffles');
+          }
+        },
+        filename: (_req, file, cb) => {
+          const uniqueName = Date.now() + '-' + Math.round(Math.random() * 1e9);
+          cb(null, uniqueName + extname(file.originalname));
+        },
+      }),
     }),
-  }),
-)
-async create_raffle(
-  @UploadedFiles() files: Express.Multer.File[],
-  @Body() body: any,
-) {
-  try {
-    // ✅ Imagen principal
-    const raffleImage = files.find(f => f.fieldname === 'image');
+  )
+  async create_raffle(
+    @UploadedFiles() files: Express.Multer.File[],
+    @Body() body: any,
+  ) {
+    const raffleImage = files.find((f) => f.fieldname === 'image');
     const image_url = raffleImage
       ? `http://localhost:3000/uploads/raffles/${raffleImage.filename}`
       : null;
 
-    // ✅ Imágenes de stickers
-    const stickerImages = files.filter(
-      f => f.fieldname === 'sticker_images'
-    );
-
-    // ✅ Metadata stickers (PROTEGIDO)
     let stickersData: any[] = [];
     if (body.stickers) {
-      try {
-        stickersData = JSON.parse(body.stickers);
-      } catch (e) {
-        throw new Error('Formato inválido de stickers');
-      }
+      stickersData = JSON.parse(body.stickers);
     }
 
-    // ✅ Unir metadata + imágenes por índice
+    const stickerImages = files.filter((f) => f.fieldname === 'sticker_images');
+
     const stickers = stickersData.map((sticker, index) => ({
       code: sticker.discount_code,
       description: sticker.discount_description,
@@ -107,12 +99,8 @@ async create_raffle(
       image_url,
       stickers,
     });
-
-  } catch (error) {
-    console.error('❌ Error creando rifa:', error);
-    throw error;
   }
-}
+
   /* =========================
      ADMIN - VER RIFAS
      ========================= */
@@ -124,7 +112,7 @@ async create_raffle(
   }
 
   /* =========================
-     ADMIN - ACTIVAR / DESACTIVAR
+     ADMIN - ACT / DESACT
      ========================= */
   @Patch('admin/raffles/:id/toggle')
   @UseGuards(JwtGuard, RolesGuard)
@@ -134,39 +122,34 @@ async create_raffle(
   }
 
   /* =========================
-   USER - RESERVAR NÚMEROS
-   ========================= */
+     USER - RESERVAR NÚMEROS
+     ========================= */
   @Post(':raffleId/reserve')
-  @UseGuards(JwtGuard)
-  async reserve_numbers(
+  reserve_numbers(
     @Param('raffleId') raffleId: string,
     @Body('numbers') numbers: number[],
-    @Req() req: any,
   ) {
-    return this.raffles_service.reserve_numbers(
-      Number(raffleId),
-      req.user.id,
-      numbers,
-    );
-  }
-  @Post(':raffleId/confirm')
-  @UseGuards(JwtGuard)
-  async confirm_purchase(
-    @Param('raffleId') raffleId: string,
-    @Body('numbers') numbers: number[],
-    @Body('paymentId') paymentId: number,
-    @Req() req: any,
-  ) {
-    return this.raffles_service.confirm_purchase(
-      Number(raffleId),
-      req.user.id,
-      numbers,
-      paymentId,
-    );
+    return this.raffles_service.reserve_numbers(Number(raffleId), numbers);
   }
 
-  @Get(':id')
-  get_raffle(@Param('id') id: string) {
-    return this.raffles_service.get_raffle_for_selection(Number(id));
+  /* =========================
+     CHECKOUT - CONFIRMAR COMPRA
+     ========================= */
+  @Post(':raffleId/confirm-purchase')
+  async confirmPurchase(
+    @Param('raffleId') raffleId: string,
+    @Body()
+    body: {
+      numbers: number[];
+      buyer: { name: string; phone: string };
+      stickerId?: number | null;
+    },
+  ) {
+    return this.raffles_service.confirmPurchase(
+      Number(raffleId),
+      body.numbers,
+      body.buyer,
+      body.stickerId,
+    );
   }
 }

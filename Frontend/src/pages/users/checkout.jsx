@@ -1,19 +1,24 @@
 import { useLocation, useNavigate } from "react-router-dom";
+import { useState } from "react";
 import Header from "../../components/layout/header";
 import Footer from "../../components/layout/Footer";
 
 export default function Checkout() {
   const location = useLocation();
   const navigate = useNavigate();
+  const [processing, setProcessing] = useState(false);
 
-  // Datos recibidos desde seleccionar_numeros
-  const { raffle, selectedNumbers } = location.state || {};
+  const { raffle, selectedNumbers, selectedSticker } = location.state || {};
 
-  // Protección básica por si se entra directo a la ruta
+  const [buyer, setBuyer] = useState({
+    name: "",
+    phone: "",
+  });
+
   if (!raffle || !selectedNumbers || selectedNumbers.length === 0) {
     return (
       <>
-        <Header />
+        <Header showSearchButton={false} />
         <div className="min-h-screen flex items-center justify-center">
           <p className="text-slate-600">
             No hay información de compra disponible.
@@ -26,46 +31,76 @@ export default function Checkout() {
 
   const total = selectedNumbers.length * raffle.ticket_price;
 
-  function handlePay() {
-    // ⚠️ Aquí irá la integración real con el backend/pasarela
-    console.log("✅ Ir a pagar", {
-      raffleId: raffle.id,
-      numbers: selectedNumbers,
-      total,
-    });
+  async function handlePay() {
+    if (processing) return; // 🚫 evita doble submit
+    setProcessing(true); // 🔒 bloquea el botón
 
-    // Simulación temporal
-    alert("Redirigiendo a la pasarela de pago...");
+    const payload = {
+      numbers: selectedNumbers,
+      buyer,
+      stickerId: selectedSticker ? selectedSticker.id : null,
+    };
+
+    console.log("Enviando al backend:", payload);
+
+    try {
+      const response = await fetch(
+        `http://localhost:3000/raffles/${raffle.id}/confirm-purchase`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
+        },
+      );
+
+      const data = await response.json();
+      console.log("Respuesta del backend:", data);
+
+      if (!response.ok) {
+        alert(data.message || "Error al confirmar la compra");
+        setProcessing(false); // 🔓 libera si falló
+        return;
+      }
+
+      alert("✅ Compra confirmada correctamente");
+
+      // 👉aquí luego irás a pantalla de confirmación
+    } catch (error) {
+      console.error("Error en checkout:", error);
+      alert("Error de conexión");
+      setProcessing(false);
+    }
   }
 
   return (
     <>
-      <Header />
+      <Header showSearchButton={false} />
 
       <main className="min-h-screen bg-slate-100 px-6 py-16">
-        <div className="max-w-4xl mx-auto bg-white rounded-xl shadow p-8 space-y-6">
-          
+        <div className="max-w-4xl mx-auto bg-white rounded-xl shadow p-8 space-y-8">
+          {/* TÍTULO */}
           <h1 className="text-2xl font-bold text-slate-800">
             Confirmar compra
           </h1>
 
-          {/* RESUMEN DE LA RIFA */}
+          {/* RESUMEN */}
           <div className="space-y-2 text-slate-700">
             <p>
               <strong>Rifa:</strong> {raffle.title}
             </p>
             <p>
-              <strong>Precio por número:</strong>{" "}
-              ${Number(raffle.ticket_price).toLocaleString()}
+              <strong>Precio por número:</strong> $
+              {Number(raffle.ticket_price).toLocaleString()}
             </p>
           </div>
 
-          {/* NÚMEROS SELECCIONADOS */}
+          {/* NÚMEROS */}
           <div>
             <h2 className="font-semibold text-slate-800 mb-2">
               Números seleccionados
             </h2>
-
             <div className="flex flex-wrap gap-2">
               {selectedNumbers.map((n) => (
                 <span
@@ -88,8 +123,33 @@ export default function Checkout() {
             </span>
           </div>
 
-          {/* ACCIONES */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-end">
+          {/* DATOS DEL COMPRADOR */}
+          <div className="space-y-4 border-t pt-6">
+            <h2 className="text-lg font-semibold text-slate-800">
+              Datos del comprador
+            </h2>
+
+            <input
+              name="name"
+              placeholder="Nombre completo"
+              value={buyer.name}
+              onChange={(e) => setBuyer({ ...buyer, name: e.target.value })}
+              className="w-full rounded border px-4 py-2"
+              required
+            />
+
+            <input
+              name="phone"
+              placeholder="Teléfono (WhatsApp)"
+              value={buyer.phone}
+              onChange={(e) => setBuyer({ ...buyer, phone: e.target.value })}
+              className="w-full rounded border px-4 py-2"
+              required
+            />
+          </div>
+
+          {/* BOTONES ABAJO */}
+          <div className="flex flex-col sm:flex-row justify-end gap-4 pt-6">
             <button
               onClick={() => navigate(-1)}
               className="px-6 py-2 rounded border text-slate-600 hover:bg-slate-100"
@@ -99,7 +159,7 @@ export default function Checkout() {
 
             <button
               onClick={handlePay}
-              className="px-6 py-2 rounded bg-green-600 text-white font-semibold hover:bg-green-700 transition"
+              className="px-6 py-2 rounded bg-blue-600 text-white font-semibold hover:bg-blue-800 transition"
             >
               Ir a pagar
             </button>

@@ -1,7 +1,7 @@
 const API_URL = 'http://localhost:3000';
 
 /* ========================== */
-/* 🔓 PÚBLICO (HOME)          */
+/*  PÚBLICO (HOME)          */
 /* ========================== */
 
 export async function get_raffles() {
@@ -16,7 +16,7 @@ export async function get_raffles() {
 }
 
 /* ========================== */
-/* 🔐 ADMINISTRACIÓN          */
+/*  ADMINISTRACIÓN          */
 /* ========================== */
 
 /**

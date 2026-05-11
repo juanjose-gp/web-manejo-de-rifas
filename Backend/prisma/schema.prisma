@@ -35,6 +35,7 @@ model Raffle {
 
   tickets       Ticket[]
   discountCodes DiscountCode[]
+  purchases     Purchase[]
 }
 
 
@@ -52,7 +53,8 @@ model Ticket {
 
   raffle    Raffle   @relation(fields: [raffleId], references: [id])
   user      User?    @relation(fields: [userId], references: [id])
-
+  purchaseId Int?
+  purchase   Purchase? @relation(fields: [purchaseId], references: [id])
   createdAt DateTime @default(now())
 
   @@unique([raffleId, number])
@@ -67,11 +69,15 @@ enum TicketStatus {
 
 model Payment {
   id        Int      @id @default(autoincrement())
-  reference String
-  amount    Float
-  status    String
+  provider  String?
+  reference String?
+  amount    Float?
+  status    String?
   createdAt DateTime @default(now())
+
+  purchase  Purchase?
 }
+
 
 model DiscountCode {
   id            Int      @id @default(autoincrement())
@@ -90,4 +96,33 @@ model DiscountCode {
   validatedBy   Int?
 
   createdAt     DateTime @default(now())
+  purchases   Purchase[]
+}
+
+model Purchase {
+  id             Int      @id @default(autoincrement())
+  buyerName      String
+  buyerPhone     String
+  buyerEmail     String?
+  totalAmount    Float
+  status         PurchaseStatus
+
+  raffleId       Int
+  raffle         Raffle   @relation(fields: [raffleId], references: [id])
+
+  discountCodeId Int?
+  discountCode   DiscountCode? @relation(fields: [discountCodeId], references: [id])
+
+  paymentId      Int?     @unique   // ✅ ESTA ES LA CLAVE
+  payment        Payment? @relation(fields: [paymentId], references: [id])
+
+  tickets        Ticket[]
+  createdAt      DateTime @default(now())
+}
+
+
+enum PurchaseStatus {
+  PENDING
+  PAID
+  CANCELLED
 }

@@ -74,22 +74,48 @@ export default function SeleccionarNumeros() {
   /* =========================
      CONTINUAR
      ========================= */
-  function handleContinue() {
+  async function handleContinue() {
     if (selectedNumbers.length === 0) {
       alert("Debes seleccionar al menos un número");
       return;
     }
 
-    navigate("/checkout", {
-      state: {
-        raffle,
-        selectedNumbers,
-        selectedSticker:
-          selectedStickerIndex !== null
-            ? raffle.discountCodes[selectedStickerIndex]
-            : null,
-      },
-    });
+    try {
+      // ✅ 1. Reservar números
+      const res = await fetch(
+        `http://localhost:3000/raffles/${raffle.id}/reserve`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            numbers: selectedNumbers,
+          }),
+        },
+      );
+
+      if (!res.ok) {
+        const error = await res.json();
+        alert(error.message || "Error al reservar números");
+        return;
+      }
+
+      // ✅ 2. Ir al checkout SOLO si la reserva fue exitosa
+      navigate("/checkout", {
+        state: {
+          raffle,
+          selectedNumbers,
+          selectedSticker:
+            selectedStickerIndex !== null
+              ? raffle.discountCodes[selectedStickerIndex]
+              : null,
+        },
+      });
+    } catch (err) {
+      console.error("Error al reservar", err);
+      alert("Error de conexión con el servidor");
+    }
   }
 
   if (!raffle) {
@@ -100,7 +126,7 @@ export default function SeleccionarNumeros() {
 
   return (
     <>
-      <Header />
+      <Header showSearchButton={false} />
 
       <main className="min-h-screen  px-6 py-16">
         <div className="max-w-6xl mx-auto space-y-6">
