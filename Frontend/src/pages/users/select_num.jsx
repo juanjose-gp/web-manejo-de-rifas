@@ -101,7 +101,7 @@ export default function SeleccionarNumeros() {
         return;
       }
 
-      // ✅ 2. Ir al checkout SOLO si la reserva fue exitosa
+      // Ir al checkout SOLO si la reserva fue exitosa
       navigate("/checkout", {
         state: {
           raffle,

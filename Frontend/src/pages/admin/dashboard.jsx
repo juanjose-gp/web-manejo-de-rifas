@@ -68,10 +68,12 @@ export default function AdminRafflesDashboard() {
               <tbody>
                 {raffles.map((r) => {
                   const sold =
-                    r.purchases?.reduce(
-                      (acc, p) => acc + p.tickets.length,
-                      0,
-                    ) || 0;
+                    r.purchases?.reduce((acc, p) => {
+                      const soldTickets = p.tickets.filter(
+                        (t) => t.status === "SOLD",
+                      ).length;
+                      return acc + soldTickets;
+                    }, 0) || 0;
 
                   const percent =
                     r.total_numbers > 0 ? (sold / r.total_numbers) * 100 : 0;
@@ -152,43 +154,51 @@ export default function AdminRafflesDashboard() {
                                   </tr>
                                 </thead>
                                 <tbody>
-                                  {r.purchases.map((p) => (
-                                    <tr key={p.id} className="border-t">
-                                      <td className="py-2">{p.buyerName}</td>
+                                  {r.purchases
+                                    .filter((p) => p.status === "PAID")
+                                    .map((p) => (
+                                      <tr key={p.id} className="border-t">
+                                        <td className="py-2">{p.buyerName}</td>
 
-                                      <td className="py-2">{p.buyerPhone}</td>
+                                        <td className="py-2">{p.buyerPhone}</td>
 
-                                      <td className="py-2">
-                                        {p.tickets
-                                          .map((t) =>
-                                            String(t.number).padStart(3, "0"),
-                                          )
-                                          .join(" - ")}
-                                      </td>
+                                        <td className="py-2">
+                                          {p.tickets
+                                            .filter((t) => t.status === "SOLD")
+                                            .map((t) =>
+                                              String(t.number).padStart(
+                                                r.total_numbers === 1000
+                                                  ? 4
+                                                  : 3,
+                                                "0",
+                                              ),
+                                            )
+                                            .join(" - ")}
+                                        </td>
 
-                                      <td className="py-2">
-                                        {p.discountCode?.code ?? "—"}
-                                      </td>
+                                        <td className="py-2">
+                                          {p.discountCode?.code ?? "—"}
+                                        </td>
 
-                                      <td className="py-2">
-                                        {p.discountCode?.patrocinador ?? "—"}
-                                      </td>
+                                        <td className="py-2">
+                                          {p.discountCode?.patrocinador ?? "—"}
+                                        </td>
 
-                                      {/* ✅ NUEVO: CÓDIGO DE VALIDACIÓN */}
-                                      <td className="py-2 font-mono font-semibold text-blue-700">
-                                        {p.validationCode ?? "—"}
-                                      </td>
+                                        {/* ✅ NUEVO: CÓDIGO DE VALIDACIÓN */}
+                                        <td className="py-2 font-mono font-semibold text-blue-700">
+                                          {p.validationCode ?? "—"}
+                                        </td>
 
-                                      {/* ✅ NUEVO: FECHA DE VENCIMIENTO */}
-                                      <td className="py-2">
-                                        {p.discountCode?.expiresAt
-                                          ? new Date(
-                                              p.discountCode.expiresAt,
-                                            ).toLocaleDateString()
-                                          : "—"}
-                                      </td>
-                                    </tr>
-                                  ))}
+                                        {/* ✅ NUEVO: FECHA DE VENCIMIENTO */}
+                                        <td className="py-2">
+                                          {p.discountCode?.expiresAt
+                                            ? new Date(
+                                                p.discountCode.expiresAt,
+                                              ).toLocaleDateString()
+                                            : "—"}
+                                        </td>
+                                      </tr>
+                                    ))}
                                 </tbody>
                               </table>
                             )}

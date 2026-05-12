@@ -1,30 +1,24 @@
-import {
-  Controller,
-  Post,
-  Body,
-  UseGuards,
-} from '@nestjs/common';
+import { Controller, Post, Body } from '@nestjs/common';
 import { PaymentsService } from './payments_service';
-import { JwtGuard } from '../auth/guards/jwt_guard';
 
 @Controller('payments')
 export class PaymentsController {
   constructor(private readonly paymentsService: PaymentsService) {}
 
-  /* =========================
-     USER - CREAR PAGO (SIMULADO)
-     ========================= */
-  @Post()
-  @UseGuards(JwtGuard)
-  create_payment(
-    @Body('reference') reference: string,
-    @Body('amount') amount: number,
-    @Body('status') status: 'APPROVED' | 'REJECTED',
-  ) {
-    return this.paymentsService.create_payment({
-      reference,
-      amount,
-      status,
-    });
+  // ✅ ENDPOINT QUE FALTABA
+  @Post('create')
+  createPayment(@Body('purchaseId') purchaseId: number) {
+    return this.paymentsService.createWompiPayment(purchaseId);
+  }
+
+  // ✅ WEBHOOK
+  @Post('webhook')
+  handleWebhook(@Body() payload: any) {
+    console.log(
+      'WEBHOOK WOMPI RECIBIDO:',
+      payload?.data?.payment_link?.id,
+      payload?.data?.transaction?.status,
+    );
+    return this.paymentsService.handleWebhook(payload);
   }
 }

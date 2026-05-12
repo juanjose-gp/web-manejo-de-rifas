@@ -34,18 +34,46 @@ export class RafflesService {
      ========================= */
   async create_raffle(data: any) {
     return this.prisma.$transaction(async (tx) => {
+      const totalNumbers = Number(data.total_numbers);
+
+      // Validación explícita del tipo de rifa
+      if (totalNumbers !== 100 && totalNumbers !== 1000) {
+        throw new BadRequestException(
+          'total_numbers debe ser 100 (manual) o 1000 (automática)',
+        );
+      }
+
       //  Crear la rifa
       const raffle = await tx.raffle.create({
         data: {
           title: data.title,
           description: data.description,
           ticket_price: Number(data.ticket_price),
-          total_numbers: Number(data.total_numbers),
-          image_url: data.image_url,
+          total_numbers: totalNumbers,
+          image_url: data.image_url ?? null,
+          is_active: true,
         },
       });
 
-      //  Crear los stickers asociados
+      //  Crear boletas según el tipo
+      const tickets: {
+        raffleId: number;
+        number: number;
+        status: 'AVAILABLE';
+      }[] = [];
+      for (let i = 1; i <= totalNumbers; i++) {
+        tickets.push({
+          raffleId: raffle.id,
+          number: i,
+          status: 'AVAILABLE',
+        });
+      }
+
+      await tx.ticket.createMany({
+        data: tickets,
+      });
+
+      // Crear los stickers asociados (SIN CAMBIOS)
       if (Array.isArray(data.stickers)) {
         for (const sticker of data.stickers) {
           await tx.discountCode.create({
@@ -188,6 +216,9 @@ export class RafflesService {
       /* =========================
        CREAR COMPRA
        ========================= */
+      /* =========================
+   CREAR COMPRA
+   ========================= */
       const purchase = await tx.purchase.create({
         data: {
           raffleId,
@@ -195,18 +226,15 @@ export class RafflesService {
           buyerPhone: buyer.phone,
           buyerEmail: buyer.email ?? null,
           totalAmount,
-          status: 'PAID',
+          status: 'PENDING', // ✅ SIEMPRE PENDING
           discountCodeId: stickerId ?? null,
-          validationCode, // ✅ AQUÍ SE GUARDA
         },
       });
 
+      // ✅ SOLO ASOCIAR, NO vender
       await tx.ticket.updateMany({
         where: { id: { in: tickets.map((t) => t.id) } },
         data: {
-          status: 'SOLD',
-          reservedAt: null,
-          expiresAt: null,
           purchaseId: purchase.id,
         },
       });
@@ -214,11 +242,106 @@ export class RafflesService {
       return {
         success: true,
         purchaseId: purchase.id,
-        validationCode,
         raffle: raffle.title,
         numbers,
         buyer,
         totalAmount,
+      };
+    });
+  }
+  async confirmPurchaseAuto(
+    raffleId: number,
+    quantity: number,
+    buyer: { name: string; phone: string },
+  ) {
+    if (!quantity || quantity <= 0) {
+      throw new BadRequestException('Cantidad inválida');
+    }
+
+    if (!buyer?.name || !buyer?.phone) {
+      throw new BadRequestException('Datos del comprador incompletos');
+    }
+
+    const now = new Date();
+
+    return this.prisma.$transaction(async (tx) => {
+      const raffle = await tx.raffle.findUnique({
+        where: { id: raffleId },
+      });
+
+      if (!raffle) {
+        throw new BadRequestException('Rifa no encontrada');
+      }
+
+      // ✅ Esta ruta SOLO es válida para rifas automáticas
+      if (raffle.total_numbers !== 1000) {
+        throw new BadRequestException('Esta rifa no es automática');
+      }
+
+      /*
+      ✅ 1. Obtener números YA USADOS
+      (tickets existentes)
+    */
+      const existingTickets = await tx.ticket.findMany({
+        where: { raffleId },
+        select: { number: true },
+      });
+
+      const usedNumbers = new Set(existingTickets.map((t) => t.number));
+
+      /*
+      ✅ 2. Validar disponibilidad real
+    */
+      if (usedNumbers.size + quantity > 1000) {
+        throw new BadRequestException('No hay suficientes boletas disponibles');
+      }
+
+      /*
+      ✅ 3. Elegir números aleatorios NO usados
+    */
+      const selectedNumbers: number[] = [];
+
+      while (selectedNumbers.length < quantity) {
+        const randomNumber = Math.floor(Math.random() * 1000) + 1; // 1–1000
+
+        if (!usedNumbers.has(randomNumber)) {
+          usedNumbers.add(randomNumber);
+          selectedNumbers.push(randomNumber);
+        }
+      }
+
+      /*
+      ✅ 4. Crear Purchase (PENDING)
+    */
+      const purchase = await tx.purchase.create({
+        data: {
+          raffleId,
+          buyerName: buyer.name,
+          buyerPhone: buyer.phone,
+          totalAmount: raffle.ticket_price * quantity,
+          status: 'PENDING',
+        },
+      });
+
+      /*
+      ✅ 5. Crear y RESERVAR tickets (igual que manual)
+    */
+      for (const number of selectedNumbers) {
+        await tx.ticket.create({
+          data: {
+            raffleId,
+            number,
+            status: 'RESERVED',
+            reservedAt: now,
+            purchaseId: purchase.id,
+          },
+        });
+      }
+
+      return {
+        success: true,
+        purchaseId: purchase.id,
+        quantity,
       };
     });
   }

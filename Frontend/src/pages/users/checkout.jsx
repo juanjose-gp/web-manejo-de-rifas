@@ -32,41 +32,64 @@ export default function Checkout() {
   const total = selectedNumbers.length * raffle.ticket_price;
 
   async function handlePay() {
-    if (processing) return; // 🚫 evita doble submit
-    setProcessing(true); // 🔒 bloquea el botón
+    if (processing) return;
+    setProcessing(true);
 
     const payload = {
       numbers: selectedNumbers,
       buyer,
       stickerId: selectedSticker ? selectedSticker.id : null,
     };
-
-    console.log("Enviando al backend:", payload);
+    if (!buyer.name || !buyer.phone) {
+      alert("Debes ingresar nombre y teléfono");
+      setProcessing(false);
+      return;
+    }
 
     try {
-      const response = await fetch(
+      // 1️⃣ Confirmar compra (crear Purchase en PENDING)
+      const confirmRes = await fetch(
         `http://localhost:3000/raffles/${raffle.id}/confirm-purchase`,
         {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
         },
       );
 
-      const data = await response.json();
-      console.log("Respuesta del backend:", data);
+      const confirmData = await confirmRes.json();
 
-      if (!response.ok) {
-        alert(data.message || "Error al confirmar la compra");
-        setProcessing(false); // 🔓 libera si falló
+      if (!confirmRes.ok) {
+        alert(confirmData.message || "Error al confirmar la compra");
+        setProcessing(false);
         return;
       }
 
-      alert("✅ Compra confirmada correctamente");
+      // ✅ confirmData.purchaseId EXISTE
+      console.log("Purchase creada:", confirmData.purchaseId);
 
-      // 👉aquí luego irás a pantalla de confirmación
+      // 2️⃣ Crear pago en Wompi
+      const paymentRes = await fetch("http://localhost:3000/payments/create", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`, // ✅ hay JwtGuard
+        },
+        body: JSON.stringify({
+          purchaseId: confirmData.purchaseId,
+        }),
+      });
+
+      const paymentData = await paymentRes.json();
+
+      if (!paymentRes.ok || !paymentData.checkoutUrl) {
+        alert("Error al crear el pago");
+        setProcessing(false);
+        return;
+      }
+
+      // 3️⃣ REDIRIGIR A WOMPI ✅✅✅
+      window.location.href = paymentData.checkoutUrl;
     } catch (error) {
       console.error("Error en checkout:", error);
       alert("Error de conexión");

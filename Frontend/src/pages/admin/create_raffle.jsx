@@ -19,7 +19,7 @@ export default function CreateRafflePage() {
       formData.append('image', form.image);
     }
 
-    // ✅ Metadata de stickers como JSON
+    // Metadata de stickers como JSON
     formData.append(
       'stickers',
       JSON.stringify(
@@ -32,7 +32,7 @@ export default function CreateRafflePage() {
       )
     );
 
-    // ✅ Imágenes de stickers (planas)
+    // Imágenes de stickers (planas)
     form.stickers.forEach(sticker => {
       if (sticker.sticker_image) {
         formData.append('sticker_images', sticker.sticker_image);
@@ -54,7 +54,7 @@ export default function CreateRafflePage() {
       return;
     }
 
-    alert('✅ Rifa creada correctamente');
+    alert(' Rifa creada correctamente');
     navigate('/admin');
   }
 

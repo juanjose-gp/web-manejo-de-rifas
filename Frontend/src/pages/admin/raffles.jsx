@@ -19,7 +19,7 @@ export default function AdminRaffles() {
         token
       );
 
-      set_message({ type: 'success', text: '✅ Rifa creada correctamente' });
+      set_message({ type: 'success', text: ' Rifa creada correctamente' });
     } catch (err) {
       set_message({ type: 'error', text: err.message });
     }

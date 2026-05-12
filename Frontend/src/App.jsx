@@ -12,7 +12,9 @@ import TermsAndConditions from "./pages/legal/terms";
 import FaqPage from "./pages/help/faq";
 import SeleccionarNumeros from "./pages/users/select_num";
 import Checkout from "./pages/users/checkout";
+import CheckoutAuto from "./pages/users/checkout_auto";
 import ProtectedRoute from "./components/auth/protected_route";
+import Gracias from "./pages/Gracias";
 
 export default function App() {
   return (
@@ -27,6 +29,9 @@ export default function App() {
         <Route path="/preguntas_frecuentes" element={<FaqPage />} />
         <Route path="/rifas/:raffleId/seleccionar_numeros" element={<SeleccionarNumeros />}/>
         <Route path="/checkout" element={<Checkout />} />
+        <Route path="/checkout_auto" element={<CheckoutAuto />} />
+        <Route path="/gracias" element={<Gracias />} />
+        
         {/* ADMIN */}
         <Route
           path="/admin"

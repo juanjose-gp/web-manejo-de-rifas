@@ -152,4 +152,15 @@ export class RafflesController {
       body.stickerId,
     );
   }
+  @Post(':id/confirm-purchase-auto')
+confirmPurchaseAuto(
+  @Param('id') raffleId: string,
+  @Body() body: { quantity: number; buyer: { name: string; phone: string } },
+) {
+  return this.raffles_service.confirmPurchaseAuto(
+    Number(raffleId),
+    body.quantity,
+    body.buyer,
+  );
+}
 }
