@@ -1,7 +1,7 @@
 import { useState } from "react";
 
 export default function CrearPatrocinadorForm({ onSubmit }) {
-    console.log("onSubmit:", onSubmit);
+  console.log("onSubmit:", onSubmit);
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -20,7 +20,7 @@ export default function CrearPatrocinadorForm({ onSubmit }) {
 
   return (
     <div className="min-h-screen flex justify-center items-center px-6">
-         
+      {/* Patrocinador */}
       <form
         onSubmit={handleSubmit}
         className="
@@ -36,7 +36,7 @@ export default function CrearPatrocinadorForm({ onSubmit }) {
         <h2 className="text-2xl font-semibold text-slate-800 text-center">
           Crear Patrocinador
         </h2>
-        
+
         {/* Nombre */}
         <div className="space-y-1">
           <label className="text-sm text-slate-600">Nombre</label>
@@ -130,7 +130,7 @@ export default function CrearPatrocinadorForm({ onSubmit }) {
           />
         </div>
 
-        {/* Botón */}
+        {/* crear */}
         <button
           type="submit"
           className="

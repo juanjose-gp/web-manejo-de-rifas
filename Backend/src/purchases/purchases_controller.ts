@@ -5,9 +5,8 @@ import { PrismaService } from '../../prisma/prisma_service';
 export class PurchasesController {
   constructor(private readonly prisma: PrismaService) {}
 
-  /**
-   * Obtener una compra con toda su info
-   */
+  //=== Obtener una compra con toda su info ===
+
   @Get(':id')
   async getPurchase(@Param('id') id: string) {
     return this.prisma.purchase.findUnique({
@@ -36,5 +35,19 @@ export class PurchasesController {
         },
       },
     });
+  }
+
+  @Get('validation/:id')
+  async checkValidation(@Param('id') id: string) {
+    const purchase = await this.prisma.purchase.findUnique({
+      where: { id: Number(id) },
+      select: {
+        validationCode: true,
+      },
+    });
+
+    return {
+      approved: Boolean(purchase?.validationCode),
+    };
   }
 }

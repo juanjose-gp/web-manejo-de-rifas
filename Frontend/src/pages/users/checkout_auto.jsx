@@ -2,15 +2,16 @@ import { useLocation } from "react-router-dom";
 import { useState } from "react";
 import Header from "../../components/layout/header";
 import Footer from "../../components/layout/footer";
+import { useNavigate } from "react-router-dom";
 
 export default function CheckoutAuto() {
   const { state } = useLocation();
   const cart = state?.cart || [];
-
+  const navigate = useNavigate();
   const [processing, setProcessing] = useState(false);
   const [buyer, setBuyer] = useState({
     name: "",
-    phone: "",
+    email: "",
   });
 
   if (cart.length === 0) {
@@ -27,26 +28,21 @@ export default function CheckoutAuto() {
     );
   }
 
-  // 🔢 Totales
-  const totalBoletas = cart.reduce(
-    (acc, item) => acc + item.quantity,
-    0
-  );
+  // ==== Totales ====
+  const totalBoletas = cart.reduce((acc, item) => acc + item.quantity, 0);
 
   const totalPagar = cart.reduce(
     (acc, item) => acc + item.quantity * item.ticket_price,
-    0
+    0,
   );
 
-  async function handlePay() {
-    if (processing) return;
+  async function handlePay(e) {
+    e.preventDefault();
 
-    if (!buyer.name || !buyer.phone) {
-      alert("Debes ingresar nombre y teléfono");
+    if (!buyer.name || !buyer.email) {
+      alert("Debes ingresar nombre y correo");
       return;
     }
-
-    setProcessing(true);
 
     try {
       /*
@@ -66,7 +62,7 @@ export default function CheckoutAuto() {
             quantity: raffle.quantity,
             buyer,
           }),
-        }
+        },
       );
 
       const confirmData = await confirmRes.json();
@@ -77,20 +73,17 @@ export default function CheckoutAuto() {
         return;
       }
 
-      //  purchaseId generado
+      // ===== purchaseId generado ======
       const purchaseId = confirmData.purchaseId;
 
       //  Crear pago (MISMO FLUJO QUE EL MANUAL)
-      const paymentRes = await fetch(
-        "http://localhost:3000/payments/create",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ purchaseId }),
-        }
-      );
+      const paymentRes = await fetch("http://localhost:3000/payments/create", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ purchaseId }),
+      });
 
       const paymentData = await paymentRes.json();
 
@@ -120,7 +113,7 @@ export default function CheckoutAuto() {
           </h1>
 
           <p className="text-base text-slate-600 leading-relaxed">
-            Deja tus números de boletas en manos de la suerte 
+            Deja tus números de boletas en manos de la suerte
             <br />
             El sistema los asignará automáticamente.
           </p>
@@ -152,40 +145,60 @@ export default function CheckoutAuto() {
 
           {/* FORMULARIO COMPRADOR (MISMO DEL CHECKOUT MANUAL) */}
           <div className="space-y-4 pt-2">
-            <input
-              placeholder="Nombre completo"
-              value={buyer.name}
-              onChange={(e) =>
-                setBuyer({ ...buyer, name: e.target.value })
-              }
-              className="w-full rounded border px-4 py-2"
-              required
-            />
+            <form onSubmit={handlePay}>
+              <div className="space-y-4 border-t pt-6">
+                <h2 className="text-lg font-semibold text-slate-800">
+                  Datos del comprador
+                </h2>
 
-            <input
-              placeholder="Teléfono (WhatsApp)"
-              value={buyer.phone}
-              onChange={(e) =>
-                setBuyer({ ...buyer, phone: e.target.value })
-              }
-              className="w-full rounded border px-4 py-2"
-              required
-            />
+                <input
+                  name="name"
+                  placeholder="Nombre completo"
+                  value={buyer.name}
+                  onChange={(e) => setBuyer({ ...buyer, name: e.target.value })}
+                  className="w-full rounded border px-4 py-2"
+                  required
+                />
+
+                <input
+                  type="email"
+                  name="email"
+                  placeholder="Correo electrónico"
+                  value={buyer.email}
+                  onChange={(e) =>
+                    setBuyer({ ...buyer, email: e.target.value })
+                  }
+                  className="w-full rounded border px-4 py-2"
+                  required
+                  pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
+                  onInvalid={(e) =>
+                    e.target.setCustomValidity(
+                      "Ingresa un correo válido (ej: nombre@gmail.com)",
+                    )
+                  }
+                  onInput={(e) => e.target.setCustomValidity("")}
+                />
+              </div>
+
+              {/* BOTONES */}
+              <div className="flex flex-col sm:flex-row justify-end gap-4 pt-6">
+                <button
+                  type="button"
+                  onClick={() => navigate(-1)}
+                  className="px-6 py-2 rounded border text-slate-600 hover:bg-slate-100"
+                >
+                  Volver
+                </button>
+
+                <button
+                  type="submit"
+                  className="px-6 py-2 rounded bg-blue-600 text-white font-semibold hover:bg-blue-800 transition"
+                >
+                  Ir a pagar
+                </button>
+              </div>
+            </form>
           </div>
-
-          <button
-            onClick={handlePay}
-            disabled={processing}
-            className="w-full mt-4 rounded bg-blue-600 py-3 font-semibold text-white hover:bg-blue-700 transition"
-          >
-            {processing ? "Procesando..." : "IR A PAGAR"}
-          </button>
-
-          <p className="text-sm text-slate-500">
-            Los números asignados se mostrarán y enviarán
-            <br />
-            una vez confirmado el pago.
-          </p>
         </div>
       </main>
 

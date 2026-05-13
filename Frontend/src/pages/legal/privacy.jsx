@@ -4,7 +4,7 @@ import Footer from "../../components/layout/Footer";
 export default function PrivacyPolicy() {
   return (
     <>
-      <Header />
+      <Header showSearchButton={false} />
 
       <main className="min-h-screen  px-6 py-20">
         <div className="max-w-4xl mx-auto bg-white rounded-xl shadow p-8 space-y-6">
@@ -44,14 +44,14 @@ export default function PrivacyPolicy() {
               2. Uso de la información
             </h2>
 
-            <p>
-              Los datos personales son utilizados exclusivamente para:
-            </p>
+            <p>Los datos personales son utilizados exclusivamente para:</p>
 
             <ul className="list-disc list-inside space-y-1">
               <li>Gestionar la participación en rifas</li>
               <li>Asignar números de manera correcta</li>
-              <li>Notificar confirmaciones, resultados o información relevante</li>
+              <li>
+                Notificar confirmaciones, resultados o información relevante
+              </li>
               <li>Brindar soporte al usuario</li>
             </ul>
 
@@ -81,9 +81,9 @@ export default function PrivacyPolicy() {
             </h2>
 
             <p>
-              El usuario tiene derecho a solicitar la actualización,
-              corrección o eliminación de sus datos personales, así como a
-              retirar su consentimiento para el uso de los mismos.
+              El usuario tiene derecho a solicitar la actualización, corrección
+              o eliminación de sus datos personales, así como a retirar su
+              consentimiento para el uso de los mismos.
             </p>
 
             <h2 className="text-xl font-semibold text-slate-800">
@@ -92,8 +92,8 @@ export default function PrivacyPolicy() {
 
             <p>
               Nos reservamos el derecho de modificar esta Política de Privacidad
-              en cualquier momento. Las actualizaciones serán publicadas en
-              esta misma sección y entrarán en vigencia desde su publicación.
+              en cualquier momento. Las actualizaciones serán publicadas en esta
+              misma sección y entrarán en vigencia desde su publicación.
             </p>
           </section>
         </div>

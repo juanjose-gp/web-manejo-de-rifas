@@ -6,11 +6,7 @@ import { PrismaService } from '../../../prisma/prisma_service';
 export class RafflesCleanupService {
   constructor(private prisma: PrismaService) {}
 
-  /**
-   * Se ejecuta cada 30 segundos
-   * Libera reservas vencidas (> 3 minutos)
-   */
-  @Cron('*/30 * * * * *')
+  @Cron('*/15 * * * * *')
   async releaseExpiredReservations() {
     const now = new Date();
 
@@ -31,9 +27,7 @@ export class RafflesCleanupService {
     });
 
     if (result.count > 0) {
-      console.log(
-        `[CRON] Reservas liberadas automáticamente: ${result.count}`,
-      );
+      console.log(`[CRON] Reservas liberadas automáticamente: ${result.count}`);
     }
   }
 }

@@ -1,12 +1,12 @@
-import { useState } from 'react';
+import { useState } from "react";
 
 export default function CreateUserForm({ onSubmit }) {
   const [form, set_form] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    password: '',
-    role: 'USER',
+    name: "",
+    email: "",
+    phone: "",
+    password: "",
+    role: "USER",
   });
 
   function handle_change(e) {
@@ -26,9 +26,7 @@ export default function CreateUserForm({ onSubmit }) {
       onSubmit={handle_submit}
       className="space-y-4 rounded-xl bg-white/5 backdrop-blur p-6 border border-white/10"
     >
-      <h2 className="text-xl font-semibold text-white">
-        Crear usuario
-      </h2>
+      <h2 className="text-xl font-semibold text-white">Crear usuario</h2>
 
       <input
         className="w-full rounded bg-black/40 p-2 text-white"

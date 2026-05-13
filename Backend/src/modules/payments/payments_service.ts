@@ -1,14 +1,17 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma_service';
 import { generateValidationCode } from '../../common/code';
+import { MailService } from '../mail/mail_service';
 
 @Injectable()
 export class PaymentsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private mailService: MailService,
+  ) {}
 
-  /* =========================
-     CREAR PAGO EN WOMPI
-     ========================= */
+  // ========= CREAR PAGO EN WOMPI =========
+
   async createWompiPayment(purchaseId: number) {
     const purchase = await this.prisma.purchase.findUnique({
       where: { id: purchaseId },
@@ -35,7 +38,7 @@ export class PaymentsService {
         collect_shipping: false,
         currency: 'COP',
         amount_in_cents: purchase.totalAmount * 100,
-        redirect_url: 'http://localhost:5173/gracias',
+        redirect_url: `http://localhost:5173/estado_pago?purchaseId=${purchase.id}`,
       }),
     });
 
@@ -44,13 +47,12 @@ export class PaymentsService {
       throw new Error(data?.error?.message || 'Error creando payment link');
     }
 
-    // ✅ ESTE ES EL IDENTIFICADOR CORRECTO
     const paymentLinkId = data.data.id;
 
     await this.prisma.payment.create({
       data: {
         provider: 'WOMPI',
-        reference: paymentLinkId, // ✅ GUARDAMOS payment_link_id
+        reference: paymentLinkId,
         amount: purchase.totalAmount,
         status: 'PENDING',
         purchase: { connect: { id: purchase.id } },
@@ -61,9 +63,9 @@ export class PaymentsService {
       checkoutUrl: `https://checkout.wompi.co/l/${paymentLinkId}`,
     };
   }
-  /* =========================
-   WEBHOOK WOMPI
-========================= */
+
+  //========= WEBHOOK WOMPI =========
+
   async handleWebhook(payload: any) {
     const transaction = payload?.data?.transaction;
     if (!transaction || transaction.status !== 'APPROVED') return;
@@ -87,7 +89,7 @@ export class PaymentsService {
 
     const purchase = payment.purchase;
 
-    //  OBTENER DESCUENTO DE LA RIFA (si NO viene de manual)
+    //== OBTENER DESCUENTO DE LA RIFA (si NO viene de manual) ==
     let discountCodeId = purchase.discountCodeId;
 
     if (!discountCodeId) {
@@ -104,7 +106,7 @@ export class PaymentsService {
       }
     }
 
-    //  GENERAR CÓDIGO DE VALIDACIÓN (4 dígitos) SOLO SI HAY DESCUENTO
+    //== GENERAR CÓDIGO DE VALIDACIÓN SOLO SI HAY DESCUENTO ==
     let validationCode: string | null = null;
 
     if (discountCodeId) {
@@ -121,7 +123,7 @@ export class PaymentsService {
       }
     }
 
-    // MARCAR PAGO Y COMPRA
+    // === MARCAR PAGO Y COMPRA ===
     await this.prisma.payment.update({
       where: { id: payment.id },
       data: { status: 'APPROVED' },
@@ -136,7 +138,7 @@ export class PaymentsService {
       },
     });
 
-    // VENDER TICKETS
+    //=== VENDER TICKETS ===
     await this.prisma.ticket.updateMany({
       where: { purchaseId: purchase.id },
       data: {
@@ -146,6 +148,37 @@ export class PaymentsService {
       },
     });
 
+    // ===== OBTENER TICKETS =====
+    const tickets = await this.prisma.ticket.findMany({
+      where: { purchaseId: purchase.id },
+      orderBy: { number: 'asc' },
+    });
+
+    // FORMATEAR NÚMEROS
+    const numbers = tickets.map((t) =>
+      String(t.number).padStart(
+        purchase.raffle.total_numbers === 1000 ? 4 : 3,
+        '0',
+      ),
+    );
+
+    const discount = discountCodeId
+      ? await this.prisma.discountCode.findUnique({
+          where: { id: discountCodeId },
+        })
+      : null;
+
+    // ===== ENVIAR EMAIL =====
+    await this.mailService.sendPurchaseEmail(purchase.buyerEmail, {
+      buyerName: purchase.buyerName,
+      raffle: purchase.raffle.title,
+      numbers,
+      validationCode,
+      code: discount?.code,
+      description: discount?.description,
+      patrocinador: discount?.patrocinador,
+      expiresAt: discount?.expiresAt,
+    });
     return { ok: true };
   }
 }

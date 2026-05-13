@@ -1,10 +1,10 @@
-import { useState } from 'react';
-import RaffleForm from '../../components/admin/raffle_form';
-import { create_raffle } from '../../api/raffles_api';
+import { useState } from "react";
+import RaffleForm from "../../components/admin/raffle_form";
+import { create_raffle } from "../../api/raffles_api";
 
 export default function AdminRaffles() {
   const [message, set_message] = useState(null);
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem("token");
 
   async function handle_create_raffle(form) {
     try {
@@ -14,14 +14,13 @@ export default function AdminRaffles() {
           description: form.description,
           ticket_price: form.ticket_price,
           total_numbers: form.total_numbers,
-          // image_url se agregará después
         },
-        token
+        token,
       );
 
-      set_message({ type: 'success', text: ' Rifa creada correctamente' });
+      set_message({ type: "success", text: " Rifa creada correctamente" });
     } catch (err) {
-      set_message({ type: 'error', text: err.message });
+      set_message({ type: "error", text: err.message });
     }
   }
 
@@ -30,9 +29,7 @@ export default function AdminRaffles() {
       {message && (
         <div
           className={`text-center py-4 ${
-            message.type === 'success'
-              ? 'text-green-600'
-              : 'text-red-600'
+            message.type === "success" ? "text-green-600" : "text-red-600"
           }`}
         >
           {message.text}

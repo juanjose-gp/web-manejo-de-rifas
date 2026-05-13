@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { get_raffles } from "../../api/raffles_api";
 import RaffleCard from "./raffles_card";
 
-export default function RafflesGrid({ onBuy,raffle }) {
+export default function RafflesGrid({ onBuy, raffle }) {
   const [raffles, set_raffles] = useState([]);
   const [loading, set_loading] = useState(true);
   const [error, set_error] = useState(null);

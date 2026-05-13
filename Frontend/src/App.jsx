@@ -1,5 +1,4 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-
 import Home from "./pages/home";
 import Login from "./pages/admin/login";
 import AdminDashboard from "./pages/admin/dashboard";
@@ -14,7 +13,9 @@ import SeleccionarNumeros from "./pages/users/select_num";
 import Checkout from "./pages/users/checkout";
 import CheckoutAuto from "./pages/users/checkout_auto";
 import ProtectedRoute from "./components/auth/protected_route";
-import Gracias from "./pages/Gracias";
+import ResultadoPago from "./pages/resultado_pago";
+import Gracias from "./pages/gracias";
+import Error from "./pages/error";
 
 export default function App() {
   return (
@@ -25,13 +26,21 @@ export default function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/buscar_boletas" element={<ValidarNumBoleta />} />
         <Route path="/politicas_de_privacidad" element={<PrivacyPolicy />} />
-        <Route path="/terminos_y_condiciones" element={<TermsAndConditions />} />
+        <Route
+          path="/terminos_y_condiciones"
+          element={<TermsAndConditions />}
+        />
         <Route path="/preguntas_frecuentes" element={<FaqPage />} />
-        <Route path="/rifas/:raffleId/seleccionar_numeros" element={<SeleccionarNumeros />}/>
+        <Route
+          path="/rifas/:raffleId/seleccionar_numeros"
+          element={<SeleccionarNumeros />}
+        />
         <Route path="/checkout" element={<Checkout />} />
         <Route path="/checkout_auto" element={<CheckoutAuto />} />
+        <Route path="/estado_pago" element={<ResultadoPago />} />
         <Route path="/gracias" element={<Gracias />} />
-        
+        <Route path="/error" element={<Error />} />
+
         {/* ADMIN */}
         <Route
           path="/admin"
@@ -63,7 +72,16 @@ export default function App() {
         <Route
           path="/patrocinador/validar_codigo"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute role="SPONSOR">
+              <ValidarCodigoDescuento />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/admin/validar_codigo"
+          element={
+            <ProtectedRoute role="ADMIN">
               <ValidarCodigoDescuento />
             </ProtectedRoute>
           }

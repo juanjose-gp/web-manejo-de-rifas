@@ -96,8 +96,8 @@ model DiscountCode {
 model Purchase {
   id                   Int      @id @default(autoincrement())
   buyerName            String
-  buyerPhone           String
-  buyerEmail           String?
+  buyerPhone           String?
+  buyerEmail           String
   totalAmount          Float
   status               PurchaseStatus
 

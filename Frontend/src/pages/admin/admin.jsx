@@ -1,15 +1,15 @@
-import CreateUserForm from '../../components/admin/create_user_form';
-import { create_user_admin } from '../../api/admin_api';
+import CreateUserForm from "../../components/admin/create_user_form";
+import { create_user_admin } from "../../api/admin_api";
 
 export default function AdminUsers() {
-  const token = localStorage.getItem('token'); // por ahora
+  const token = localStorage.getItem("token"); // por ahora
 
   async function handle_create_user(data) {
     try {
       await create_user_admin(token, data);
-      alert('Usuario creado correctamente');
+      alert("Usuario creado correctamente");
     } catch (err) {
-      alert(err.message || 'Error al crear usuario');
+      alert(err.message || "Error al crear usuario");
     }
   }
 

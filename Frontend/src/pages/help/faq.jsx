@@ -4,11 +4,10 @@ import Footer from "../../components/layout/Footer";
 export default function FaqPage() {
   return (
     <>
-      <Header />
+      <Header showSearchButton={false} />
 
       <main className="min-h-screen  px-6 py-20">
         <div className="max-w-4xl mx-auto bg-white rounded-xl shadow p-8 space-y-8">
-          
           <h1 className="text-3xl font-bold text-slate-800 text-center">
             Preguntas Frecuentes
           </h1>
@@ -20,10 +19,9 @@ export default function FaqPage() {
 
           {/* FAQ ITEM */}
           <section className="space-y-6 text-slate-700">
-            
             <div className="space-y-2">
               <h2 className="text-lg font-semibold text-slate-800">
-                 ¿Cómo participo en una rifa?
+                ¿Cómo participo en una rifa?
               </h2>
               <p>
                 Para participar, selecciona la rifa de tu interés, realiza el
@@ -34,7 +32,7 @@ export default function FaqPage() {
 
             <div className="space-y-2">
               <h2 className="text-lg font-semibold text-slate-800">
-                 ¿Cuándo se asigna mi número de rifa?
+                ¿Cuándo se asigna mi número de rifa?
               </h2>
               <p>
                 El número se asigna únicamente después de que el pago haya sido
@@ -45,7 +43,7 @@ export default function FaqPage() {
 
             <div className="space-y-2">
               <h2 className="text-lg font-semibold text-slate-800">
-                 ¿Dónde recibo la confirmación de mi participación?
+                ¿Dónde recibo la confirmación de mi participación?
               </h2>
               <p>
                 La confirmación se envía al número de WhatsApp registrado al
@@ -55,18 +53,18 @@ export default function FaqPage() {
 
             <div className="space-y-2">
               <h2 className="text-lg font-semibold text-slate-800">
-                 ¿Cómo puedo buscar mis números de rifa?
+                ¿Cómo puedo buscar mis números de rifa?
               </h2>
               <p>
-                Puedes hacer clic en el botón <strong>“Busca tus números”</strong>
-                e ingresar tu información para ver los números asignados a tu
-                participación.
+                Puedes hacer clic en el botón{" "}
+                <strong>“Busca tus números”</strong>e ingresar tu información
+                para ver los números asignados a tu participación.
               </p>
             </div>
 
             <div className="space-y-2">
               <h2 className="text-lg font-semibold text-slate-800">
-                 ¿Qué son los stickers o cupones de descuento?
+                ¿Qué son los stickers o cupones de descuento?
               </h2>
               <p>
                 Son promociones que otorgan descuentos especiales y cuentan con
@@ -77,7 +75,7 @@ export default function FaqPage() {
 
             <div className="space-y-2">
               <h2 className="text-lg font-semibold text-slate-800">
-                 ¿Los descuentos son acumulables?
+                ¿Los descuentos son acumulables?
               </h2>
               <p>
                 No. Los cupones o stickers de descuento no son acumulables con
@@ -87,7 +85,7 @@ export default function FaqPage() {
 
             <div className="space-y-2">
               <h2 className="text-lg font-semibold text-slate-800">
-                 ¿Qué pasa si hay un error técnico o duplicidad de números?
+                ¿Qué pasa si hay un error técnico o duplicidad de números?
               </h2>
               <p>
                 En caso de error técnico, la empresa se reserva el derecho de
@@ -98,7 +96,7 @@ export default function FaqPage() {
 
             <div className="space-y-2">
               <h2 className="text-lg font-semibold text-slate-800">
-                 ¿Mis datos personales están seguros?
+                ¿Mis datos personales están seguros?
               </h2>
               <p>
                 Sí. Tus datos se utilizan únicamente para la gestión de rifas y
@@ -106,7 +104,6 @@ export default function FaqPage() {
                 autorización.
               </p>
             </div>
-
           </section>
         </div>
       </main>

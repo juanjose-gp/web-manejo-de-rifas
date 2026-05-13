@@ -39,19 +39,19 @@ export default function RaffleCard({ raffle, onBuy }) {
             ${Number(raffle.ticket_price).toLocaleString()}
           </p>
 
-    <div className="rounded-xl bg-white/5 p-5">
-      <h3>{raffle.title}</h3>
+          <div className="rounded-xl bg-white/5 p-5">
+            <h3>{raffle.title}</h3>
 
-      <button
-        onClick={() => {
-          console.log('🛒 click comprar', raffle.id);
-          onBuy(raffle);
-        }}
-        className="mt-3 w-full rounded bg-blue-500 py-2 text-white"
-      >
-        COMPRAR
-      </button>
-    </div>
+            <button
+              onClick={() => {
+                console.log("🛒 click comprar", raffle.id);
+                onBuy(raffle);
+              }}
+              className="mt-3 w-full rounded bg-blue-500 py-2 text-white"
+            >
+              COMPRAR
+            </button>
+          </div>
         </div>
       </div>
     </div>

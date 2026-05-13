@@ -8,16 +8,8 @@ import { JwtGuard } from './guards/jwt_guard';
 import { RolesGuard } from './guards/roles_guard';
 
 @Module({
-  imports: [
-    PrismaModule,
-    PassportModule,
-  ],
+  imports: [PrismaModule, PassportModule],
   controllers: [AuthController],
-  providers: [
-    AuthService,
-    JwtStrategy,
-    JwtGuard,
-    RolesGuard,
-  ],
+  providers: [AuthService, JwtStrategy, JwtGuard, RolesGuard],
 })
 export class AuthModule {}

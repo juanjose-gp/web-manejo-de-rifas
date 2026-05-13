@@ -24,25 +24,22 @@ import { Roles } from '../auth/decorators/roles_decorator';
 export class RafflesController {
   constructor(private readonly raffles_service: RafflesService) {}
 
-  /* =========================
-     PUBLIC - HOME
-     ========================= */
+  //======== PUBLIC - HOME =========
+
   @Get()
   get_raffles() {
     return this.raffles_service.get_raffles();
   }
 
-  /* =========================
-     PUBLIC - VER RIFA
-     ========================= */
+  //========= PUBLIC - VER RIFA =========
+
   @Get(':id')
   get_raffle(@Param('id') id: string) {
     return this.raffles_service.get_raffle_for_selection(Number(id));
   }
 
-  /* =========================
-     ADMIN - CREAR RIFA
-     ========================= */
+  //=========  ADMIN - CREAR RIFA =========
+
   @Post()
   @UseGuards(JwtGuard, RolesGuard)
   @Roles('ADMIN')
@@ -101,9 +98,7 @@ export class RafflesController {
     });
   }
 
-  /* =========================
-     ADMIN - VER RIFAS
-     ========================= */
+  //========= ADMIN - VER RIFAS =========
   @Get('admin/raffles')
   @UseGuards(JwtGuard, RolesGuard)
   @Roles('ADMIN')
@@ -111,9 +106,8 @@ export class RafflesController {
     return this.raffles_service.get_admin_raffles();
   }
 
-  /* =========================
-     ADMIN - ACT / DESACT
-     ========================= */
+  //========= ADMIN - ACT / DESACT =========
+
   @Patch('admin/raffles/:id/toggle')
   @UseGuards(JwtGuard, RolesGuard)
   @Roles('ADMIN')
@@ -121,9 +115,8 @@ export class RafflesController {
     return this.raffles_service.toggle_raffle(Number(id));
   }
 
-  /* =========================
-     USER - RESERVAR NÚMEROS
-     ========================= */
+  //=========USER - RESERVAR NÚMEROS =========
+
   @Post(':raffleId/reserve')
   reserve_numbers(
     @Param('raffleId') raffleId: string,
@@ -132,16 +125,15 @@ export class RafflesController {
     return this.raffles_service.reserve_numbers(Number(raffleId), numbers);
   }
 
-  /* =========================
-     CHECKOUT - CONFIRMAR COMPRA
-     ========================= */
+  //========= CHECKOUT - CONFIRMAR COMPRA =========
+
   @Post(':raffleId/confirm-purchase')
   async confirmPurchase(
     @Param('raffleId') raffleId: string,
     @Body()
     body: {
       numbers: number[];
-      buyer: { name: string; phone: string };
+      buyer: { name: string; email: string };
       stickerId?: number | null;
     },
   ) {
@@ -153,14 +145,18 @@ export class RafflesController {
     );
   }
   @Post(':id/confirm-purchase-auto')
-confirmPurchaseAuto(
-  @Param('id') raffleId: string,
-  @Body() body: { quantity: number; buyer: { name: string; phone: string } },
-) {
-  return this.raffles_service.confirmPurchaseAuto(
-    Number(raffleId),
-    body.quantity,
-    body.buyer,
-  );
-}
+  confirmPurchaseAuto(
+    @Param('id') raffleId: string,
+    @Body() body: { quantity: number; buyer: { name: string; email: string } },
+  ) {
+    return this.raffles_service.confirmPurchaseAuto(
+      Number(raffleId),
+      body.quantity,
+      body.buyer,
+    );
+  }
+  @Post('validate-tickets')
+  validateTicketsByEmail(@Body('email') email: string) {
+    return this.raffles_service.getBoughtTicketsByEmail(email);
+  }
 }

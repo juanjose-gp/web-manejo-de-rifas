@@ -3,7 +3,7 @@ import Header from "../components/layout/header";
 import Footer from "../components/layout/footer";
 import { useNavigate } from "react-router-dom";
 
-export default function Gracias() {
+export default function Error() {
   const [params] = useSearchParams();
   const purchaseId = params.get("purchaseId");
   const navigate = useNavigate();
@@ -17,12 +17,12 @@ export default function Gracias() {
         <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-10 text-center space-y-6">
           {/*  TÍTULO PRINCIPAL */}
           <h1 className="text-3xl font-extrabold text-slate-800">
-            ¡Gracias por tu compra!
+            ¡Tuvimos un error con tu compra!
           </h1>
 
           {/* MENSAJE PRINCIPAL */}
           <p className="text-base text-slate-600 leading-relaxed">
-            Tu pago fue recibido correctamente.
+            Tu pago no fue recibido correctamente.
             <br />
             Estamos validando la transacción.
           </p>
@@ -30,30 +30,22 @@ export default function Gracias() {
           {/*  BLOQUE DESTACADO */}
           <div className="bg-blue-50 border border-blue-200 rounded-xl px-6 py-4">
             <p className="text-blue-800 font-semibold">
-              No necesitas hacer nada más
+              por favor intenta de nuvo. Revisa muy bien los datos ingresados
             </p>
             <p className="text-blue-700 text-sm mt-1">
-              La confirmación se procesa automáticamente.
+              y espera 2 minutos para escoger los mismos numeros anteriores.
             </p>
           </div>
-          {/* PURCHASE ID (opcional pero útil) */}
-          {purchaseId && (
-            <p className="text-sm text-slate-500">
-              Referencia de compra:
-              <br />
-              <span className="font-mono text-slate-800">#{purchaseId}</span>
-            </p>
-          )}
 
           {/* MENSAJE FINAL */}
           <p className="text-sm text-slate-500">
-            Si el pago fue aprobado, recibirás tu confirmación
+            si el error percibe no dudes en comunicarse con nosotros.
             <br />
             por nuestros canales oficiales.
           </p>
           <button
             onClick={() => navigate("/")}
-            className="w-full mt-4 rounded bg-blue-600 py-3 font-semibold text-white hover:bg-blue-700 transition"
+            className="w-full mt-4 rounded bg-gray-600 py-3 font-semibold text-white hover:bg-gray-700 transition"
           >
             Volver al inicio
           </button>

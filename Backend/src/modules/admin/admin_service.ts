@@ -7,8 +7,7 @@ import { CreateUserAdminDto } from './dto/create_user_admin_dto';
 export class AdminService {
   constructor(private readonly prisma: PrismaService) {}
 
-
-  //  / ADMIN 
+  // ========= ADMIN =========
 
   async create_user(dto: CreateUserAdminDto) {
     const exists = await this.prisma.user.findUnique({
@@ -27,12 +26,12 @@ export class AdminService {
         email: dto.email,
         phone: dto.phone,
         password: hashedPassword,
-        role: 'ADMIN', 
+        role: 'ADMIN',
       },
     });
   }
 
-  // CREAR PATROCINADOR 
+  // ========= CREAR PATROCINADOR =========
   async create_sponsor(dto: CreateUserAdminDto) {
     const exists = await this.prisma.user.findUnique({
       where: { email: dto.email },
@@ -50,7 +49,7 @@ export class AdminService {
         email: dto.email,
         phone: dto.phone,
         password: hashedPassword,
-        role: 'SPONSOR', 
+        role: 'SPONSOR',
       },
     });
   }

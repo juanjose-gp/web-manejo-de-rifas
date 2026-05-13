@@ -49,6 +49,13 @@ export default function AdminRafflesDashboard() {
             >
               Crear rifa
             </button>
+
+            <button
+              onClick={() => navigate("/admin/validar_codigo")}
+              className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition text-sm"
+            >
+              Descuentos
+            </button>
           </div>
         </div>
 
@@ -158,38 +165,68 @@ export default function AdminRafflesDashboard() {
                                     .filter((p) => p.status === "PAID")
                                     .map((p) => (
                                       <tr key={p.id} className="border-t">
+                                        {/* NOMBRE CLIENTE */}
                                         <td className="py-2">{p.buyerName}</td>
-
-                                        <td className="py-2">{p.buyerPhone}</td>
-
+                                        {/* EMAIL CLIENTE */}
+                                        <td className="py-2">{p.buyerEmail}</td>
+                                        {/* # BOLETAS */}
                                         <td className="py-2">
-                                          {p.tickets
-                                            .filter((t) => t.status === "SOLD")
-                                            .map((t) =>
-                                              String(t.number).padStart(
-                                                r.total_numbers === 1000
-                                                  ? 4
-                                                  : 3,
-                                                "0",
-                                              ),
-                                            )
-                                            .join(" - ")}
-                                        </td>
+                                          {(() => {
+                                            const numbers = p.tickets
+                                              .filter(
+                                                (t) => t.status === "SOLD",
+                                              )
+                                              .map((t) =>
+                                                String(t.number).padStart(
+                                                  r.total_numbers === 1000
+                                                    ? 4
+                                                    : 3,
+                                                  "0",
+                                                ),
+                                              );
 
+                                            const chunks = [];
+
+                                            for (
+                                              let i = 0;
+                                              i < numbers.length;
+                                              i += 4
+                                            ) {
+                                              chunks.push(
+                                                numbers.slice(i, i + 4),
+                                              );
+                                            }
+
+                                            return chunks.map(
+                                              (group, index) => (
+                                                <div key={index}>
+                                                  {group.join(" - ")}
+                                                </div>
+                                              ),
+                                            );
+                                          })()}
+                                        </td>
+                                        {/* % DESCUENTO */}
                                         <td className="py-2">
                                           {p.discountCode?.code ?? "—"}
                                         </td>
-
+                                        {/* NOMBRE PATROCINADOR */}
                                         <td className="py-2">
                                           {p.discountCode?.patrocinador ?? "—"}
                                         </td>
 
-                                        {/* ✅ NUEVO: CÓDIGO DE VALIDACIÓN */}
-                                        <td className="py-2 font-mono font-semibold text-blue-700">
+                                        {/* CÓDIGO DE DESCUENTO*/}
+                                        <td
+                                          className={`py-2 font-mono font-semibold ${
+                                            p.validationCodeUsedAt
+                                              ? "text-red-500"
+                                              : "text-green-700"
+                                          }`}
+                                        >
                                           {p.validationCode ?? "—"}
                                         </td>
 
-                                        {/* ✅ NUEVO: FECHA DE VENCIMIENTO */}
+                                        {/*FECHA DE VENCIMIENTO */}
                                         <td className="py-2">
                                           {p.discountCode?.expiresAt
                                             ? new Date(

@@ -11,12 +11,11 @@ export default function SeleccionarNumeros() {
   const [numbers, setNumbers] = useState([]);
   const [selectedNumbers, setSelectedNumbers] = useState([]);
 
-  // Sticker seleccionado (solo uno)
+  // === Sticker seleccionado ===
   const [selectedStickerIndex, setSelectedStickerIndex] = useState(null);
 
-  /* =========================
-     CARGAR RIFA
-     ========================= */
+  // ======= CARGAR RIFA ======
+
   useEffect(() => {
     async function loadRaffle() {
       const res = await fetch(`http://localhost:3000/raffles/${raffleId}`);
@@ -26,9 +25,8 @@ export default function SeleccionarNumeros() {
     loadRaffle();
   }, [raffleId]);
 
-  /* =========================
-     GENERAR NÚMEROS
-     ========================= */
+  // ======= GENERAR NÚMEROS ========
+
   useEffect(() => {
     if (!raffle) return;
 
@@ -50,9 +48,8 @@ export default function SeleccionarNumeros() {
     setNumbers(generated);
   }, [raffle]);
 
-  /* =========================
-     SELECCIONAR NÚMEROS
-     ========================= */
+  // ======= SELECCIONAR NÚMEROS =======
+
   function toggleNumber(num) {
     if (num.sold || num.reserved) return;
 
@@ -63,17 +60,15 @@ export default function SeleccionarNumeros() {
     );
   }
 
-  /* =========================
-     SELECCIONAR STICKER
-     ========================= */
+  // ======= SELECCIONAR STICKER =========
+
   function handleSelectSticker(index) {
     if (selectedStickerIndex !== null) return;
     setSelectedStickerIndex(index);
   }
 
-  /* =========================
-     CONTINUAR
-     ========================= */
+  // ======= CONTINUAR =======
+
   async function handleContinue() {
     if (selectedNumbers.length === 0) {
       alert("Debes seleccionar al menos un número");
@@ -81,7 +76,7 @@ export default function SeleccionarNumeros() {
     }
 
     try {
-      // ✅ 1. Reservar números
+      //=== Reservar números ====
       const res = await fetch(
         `http://localhost:3000/raffles/${raffle.id}/reserve`,
         {
@@ -185,9 +180,7 @@ export default function SeleccionarNumeros() {
             </button>
           </div>
 
-          {/* =========================
-              STICKERS
-             ========================= */}
+          {/* STICKERS */}
           {raffle.discountCodes?.length > 0 && (
             <div className="mt-10 flex flex-col items-center gap-6 text-center">
               <h2 className="text-3xl md:text-4xl font-extrabold">

@@ -12,7 +12,7 @@ export default function Checkout() {
 
   const [buyer, setBuyer] = useState({
     name: "",
-    phone: "",
+    email: "",
   });
 
   if (!raffle || !selectedNumbers || selectedNumbers.length === 0) {
@@ -31,7 +31,8 @@ export default function Checkout() {
 
   const total = selectedNumbers.length * raffle.ticket_price;
 
-  async function handlePay() {
+  async function handlePay(e) {
+    e.preventDefault();
     if (processing) return;
     setProcessing(true);
 
@@ -40,14 +41,14 @@ export default function Checkout() {
       buyer,
       stickerId: selectedSticker ? selectedSticker.id : null,
     };
-    if (!buyer.name || !buyer.phone) {
+    if (!buyer.name || !buyer.email) {
       alert("Debes ingresar nombre y teléfono");
       setProcessing(false);
       return;
     }
 
     try {
-      // 1️⃣ Confirmar compra (crear Purchase en PENDING)
+      // ===== Confirmar compra (crear Purchase en PENDING) ====
       const confirmRes = await fetch(
         `http://localhost:3000/raffles/${raffle.id}/confirm-purchase`,
         {
@@ -65,15 +66,15 @@ export default function Checkout() {
         return;
       }
 
-      // ✅ confirmData.purchaseId EXISTE
+      // ==== confirmData.purchaseId EXISTE ======
       console.log("Purchase creada:", confirmData.purchaseId);
 
-      // 2️⃣ Crear pago en Wompi
+      // ===== Crear pago en Wompi ======
       const paymentRes = await fetch("http://localhost:3000/payments/create", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`, // ✅ hay JwtGuard
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
         body: JSON.stringify({
           purchaseId: confirmData.purchaseId,
@@ -88,7 +89,7 @@ export default function Checkout() {
         return;
       }
 
-      // 3️⃣ REDIRIGIR A WOMPI ✅✅✅
+      // ====== REDIRIGIR A WOMPI =======
       window.location.href = paymentData.checkoutUrl;
     } catch (error) {
       console.error("Error en checkout:", error);
@@ -151,41 +152,59 @@ export default function Checkout() {
             <h2 className="text-lg font-semibold text-slate-800">
               Datos del comprador
             </h2>
+            <form onSubmit={handlePay}>
+              <div className="space-y-4 border-t pt-6">
+                <h2 className="text-lg font-semibold text-slate-800">
+                  Datos del comprador
+                </h2>
 
-            <input
-              name="name"
-              placeholder="Nombre completo"
-              value={buyer.name}
-              onChange={(e) => setBuyer({ ...buyer, name: e.target.value })}
-              className="w-full rounded border px-4 py-2"
-              required
-            />
+                <input
+                  name="name"
+                  placeholder="Nombre completo"
+                  value={buyer.name}
+                  onChange={(e) => setBuyer({ ...buyer, name: e.target.value })}
+                  className="w-full rounded border px-4 py-2"
+                  required
+                />
 
-            <input
-              name="phone"
-              placeholder="Teléfono (WhatsApp)"
-              value={buyer.phone}
-              onChange={(e) => setBuyer({ ...buyer, phone: e.target.value })}
-              className="w-full rounded border px-4 py-2"
-              required
-            />
-          </div>
+                <input
+                  type="email"
+                  name="email"
+                  placeholder="Correo electrónico"
+                  value={buyer.email}
+                  onChange={(e) =>
+                    setBuyer({ ...buyer, email: e.target.value })
+                  }
+                  className="w-full rounded border px-4 py-2"
+                  required
+                  pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
+                  onInvalid={(e) =>
+                    e.target.setCustomValidity(
+                      "Ingresa un correo válido (ej: nombre@gmail.com)",
+                    )
+                  }
+                  onInput={(e) => e.target.setCustomValidity("")}
+                />
+              </div>
 
-          {/* BOTONES ABAJO */}
-          <div className="flex flex-col sm:flex-row justify-end gap-4 pt-6">
-            <button
-              onClick={() => navigate(-1)}
-              className="px-6 py-2 rounded border text-slate-600 hover:bg-slate-100"
-            >
-              Volver
-            </button>
+              {/* BOTONES */}
+              <div className="flex flex-col sm:flex-row justify-end gap-4 pt-6">
+                <button
+                  type="button"
+                  onClick={() => navigate(-1)}
+                  className="px-6 py-2 rounded border text-slate-600 hover:bg-slate-100"
+                >
+                  Volver
+                </button>
 
-            <button
-              onClick={handlePay}
-              className="px-6 py-2 rounded bg-blue-600 text-white font-semibold hover:bg-blue-800 transition"
-            >
-              Ir a pagar
-            </button>
+                <button
+                  type="submit"
+                  className="px-6 py-2 rounded bg-blue-600 text-white font-semibold hover:bg-blue-800 transition"
+                >
+                  Ir a pagar
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       </main>

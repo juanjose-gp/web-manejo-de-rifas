@@ -5,13 +5,12 @@ import { PaymentsService } from './payments_service';
 export class PaymentsController {
   constructor(private readonly paymentsService: PaymentsService) {}
 
-  // ✅ ENDPOINT QUE FALTABA
   @Post('create')
   createPayment(@Body('purchaseId') purchaseId: number) {
     return this.paymentsService.createWompiPayment(purchaseId);
   }
 
-  // ✅ WEBHOOK
+  // ======= WEBHOOK =======
   @Post('webhook')
   handleWebhook(@Body() payload: any) {
     console.log(

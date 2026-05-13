@@ -18,9 +18,8 @@ export default function RaffleForm({ onSubmit }) {
     ],
   });
 
-  /* =========================
-     HANDLERS GENERALES
-     ========================= */
+  //===== HANDLERS GENERALES ======
+
   function handleChange(e) {
     const { name, value } = e.target;
     setForm({
@@ -36,9 +35,8 @@ export default function RaffleForm({ onSubmit }) {
     setForm({ ...form, image: e.target.files[0] });
   }
 
-  /* =========================
-     STICKERS
-     ========================= */
+  //===== STICKERS =====
+
   function handleStickerChange(index, e) {
     const { name, value } = e.target;
     const stickers = [...form.stickers];
@@ -70,22 +68,19 @@ export default function RaffleForm({ onSubmit }) {
     }
   }
 
-  /* =========================
-     SUBMIT + VALIDACIÓN
-     ========================= */
+  // ======  SUBMIT + VALIDACIÓN =====
+
   function handleSubmit(e) {
     e.preventDefault();
 
-    // Validar códigos duplicados (HTML no puede hacerlo)
+    // Validar códigos duplicados
     const codes = form.stickers.map((s) => s.discount_code.trim());
     const hasDuplicates = new Set(codes).size !== codes.length;
 
     const codeInput = e.target.querySelector('[name="discount_code"]');
 
     if (hasDuplicates) {
-      codeInput.setCustomValidity(
-        "No puedes repetir códigos de descuento"
-      );
+      codeInput.setCustomValidity("No puedes repetir códigos de descuento");
       codeInput.reportValidity();
       return;
     }
@@ -104,7 +99,7 @@ export default function RaffleForm({ onSubmit }) {
           Crear rifa
         </h2>
 
-        {/* Datos básicos */}
+        {/* Título */}
         <input
           name="title"
           placeholder="Título"
@@ -112,14 +107,14 @@ export default function RaffleForm({ onSubmit }) {
           onChange={handleChange}
           className="w-full h-11 border rounded px-3"
         />
-
+        {/* Descripción */}
         <textarea
           name="description"
           placeholder="Descripción"
           onChange={handleChange}
           className="w-full border rounded px-3 py-2"
         />
-
+        {/* Precio */}
         <div className="grid grid-cols-2 gap-4">
           <input
             name="ticket_price"
@@ -130,7 +125,7 @@ export default function RaffleForm({ onSubmit }) {
             placeholder="Precio"
             className="h-11 border rounded px-3"
           />
-
+          {/* # boletas */}
           <select
             name="total_numbers"
             value={form.total_numbers}
@@ -160,7 +155,7 @@ export default function RaffleForm({ onSubmit }) {
               className="border rounded-lg p-4 space-y-2 bg-gray-50"
             >
               <strong>Sticker #{index + 1}</strong>
-
+              {/* fecha vence sticker */}
               <input
                 type="date"
                 name="sticker_expiration"
@@ -168,16 +163,14 @@ export default function RaffleForm({ onSubmit }) {
                 onChange={(e) => handleStickerChange(index, e)}
                 className="w-full h-10 border rounded px-3"
               />
-
+              {/* imagen sticker */}
               <input
                 type="file"
                 accept="image/*"
                 required
-                onChange={(e) =>
-                  handleStickerImage(index, e.target.files[0])
-                }
+                onChange={(e) => handleStickerImage(index, e.target.files[0])}
               />
-
+              {/* % descuento */}
               <input
                 name="discount_code"
                 required
@@ -185,7 +178,7 @@ export default function RaffleForm({ onSubmit }) {
                 placeholder="Descuento ej: 10%"
                 className="w-full h-10 border rounded px-3"
               />
-
+              {/* patrocinador */}
               <input
                 name="patrocinador"
                 required
@@ -193,7 +186,7 @@ export default function RaffleForm({ onSubmit }) {
                 placeholder="Patrocinador"
                 className="w-full h-10 border rounded px-3"
               />
-
+              {/* descripcion stickers */}
               <textarea
                 name="discount_description"
                 required
@@ -204,7 +197,7 @@ export default function RaffleForm({ onSubmit }) {
               />
             </div>
           ))}
-
+          {/* + stickers */}
           {form.total_numbers === 100 && (
             <button
               type="button"
@@ -215,7 +208,7 @@ export default function RaffleForm({ onSubmit }) {
             </button>
           )}
         </div>
-
+        {/* crear */}
         <button
           type="submit"
           className="w-full h-11 bg-blue-600 text-white rounded"

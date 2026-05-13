@@ -21,9 +21,7 @@ export default function CartSidebar({
       <h3 className="text-lg font-semibold mb-4">Bolsa de compra</h3>
 
       {cart.length === 0 && (
-        <p className="text-slate-300 text-sm">
-          No has agregado rifas.
-        </p>
+        <p className="text-slate-300 text-sm">No has agregado rifas.</p>
       )}
 
       <ul className="space-y-4">
@@ -34,9 +32,7 @@ export default function CartSidebar({
           >
             {/* Título */}
             <div className="flex justify-between items-center">
-              <span className="text-sm font-medium">
-                {item.title}
-              </span>
+              <span className="text-sm font-medium">{item.title}</span>
               <button
                 onClick={() => onRemove(item.id)}
                 className="text-red-400 text-xs hover:underline"
@@ -55,9 +51,7 @@ export default function CartSidebar({
                   −
                 </button>
 
-                <span className="font-semibold">
-                  {item.quantity}
-                </span>
+                <span className="font-semibold">{item.quantity}</span>
 
                 <button
                   onClick={() => onIncrease(item.id)}
@@ -67,19 +61,15 @@ export default function CartSidebar({
                 </button>
               </div>
 
-              <span className="text-xs text-slate-300">
-                boletas
-              </span>
+              <span className="text-xs text-slate-300">boletas</span>
             </div>
           </li>
         ))}
       </ul>
 
       {cart.length > 0 && (
-        <button
-          className="w-full mt-6 rounded bg-blue-500 py-2 font-semibold hover:bg-blue-600 transition"
-        >
-          CONTINUAR 
+        <button className="w-full mt-6 rounded bg-blue-500 py-2 font-semibold hover:bg-blue-600 transition">
+          CONTINUAR
         </button>
       )}
     </aside>

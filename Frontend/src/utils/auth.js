@@ -1,9 +1,9 @@
 export function get_token() {
-  return localStorage.getItem('token');
+  return localStorage.getItem("token");
 }
 
 export function logout() {
-  localStorage.removeItem('token');
+  localStorage.removeItem("token");
 }
 
 export function is_authenticated() {

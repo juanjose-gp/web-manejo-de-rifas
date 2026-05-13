@@ -11,12 +11,12 @@ export default function Home() {
   const [cart, setCart] = useState([]);
   const [cartOpen, setCartOpen] = useState(false);
   const navigate = useNavigate();
+  const totalBoletas = cart.reduce((acc, item) => acc + item.quantity, 0);
 
-  /* =========================
-     AGREGAR RIFA AL CARRITO
-     ========================= */
+  // ====== AGREGAR RIFA AL CARRITO =======
+
   function handleBuy(raffle) {
-    // ✅ RIFA DE 100 → selección manual
+    // RIFA DE 100 / selección manual
     if (raffle.total_numbers === 100) {
       navigate(`/rifas/${raffle.id}/seleccionar_numeros`, {
         state: { raffle },
@@ -24,7 +24,7 @@ export default function Home() {
       return;
     }
 
-    // ✅ RIFA DE 1000 → carrito con cantidad
+    //  RIFA DE 1000 / carrito con cantidad auto
     setCart((prev) => {
       const existing = prev.find((item) => item.id === raffle.id);
 
@@ -32,7 +32,7 @@ export default function Home() {
         return prev.map((item) =>
           item.id === raffle.id
             ? { ...item, quantity: item.quantity + 1 }
-            : item
+            : item,
         );
       }
 
@@ -50,16 +50,13 @@ export default function Home() {
     setCartOpen(true);
   }
 
-  /* =========================
-     MANEJO DE CANTIDADES
-     ========================= */
+  // ======= MANEJO DE CANTIDADES =========
+
   function handleIncrease(id) {
     setCart((prev) =>
       prev.map((item) =>
-        item.id === id
-          ? { ...item, quantity: item.quantity + 1 }
-          : item
-      )
+        item.id === id ? { ...item, quantity: item.quantity + 1 } : item,
+      ),
     );
   }
 
@@ -67,11 +64,9 @@ export default function Home() {
     setCart((prev) =>
       prev
         .map((item) =>
-          item.id === id
-            ? { ...item, quantity: item.quantity - 1 }
-            : item
+          item.id === id ? { ...item, quantity: item.quantity - 1 } : item,
         )
-        .filter((item) => item.quantity > 0)
+        .filter((item) => item.quantity > 0),
     );
   }
 
@@ -82,18 +77,15 @@ export default function Home() {
   return (
     <DarkGradientLayout>
       <div className="min-h-screen flex flex-col">
-        {/* ✅ HEADER */}
-        <Header />
-
-        {/* ✅ CONTENIDO PRINCIPAL */}
+        {/* HEADER */}
+        <Header cartCount={cart.length} onCartClick={() => setCartOpen(true)} />
+        {/* CONTENIDO PRINCIPAL */}
         <main className="flex-grow px-12 py-24">
           <RafflesGrid onBuy={handleBuy} />
         </main>
-
-        {/* ✅ FOOTER */}
+        {/* FOOTER */}
         <Footer />
-
-        {/* ✅ CART DRAWER */}
+        {/* CART DRAWER */}
         <CartDrawer
           open={cartOpen}
           cart={cart}

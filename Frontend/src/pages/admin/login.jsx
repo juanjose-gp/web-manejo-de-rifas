@@ -66,12 +66,18 @@ export default function Login() {
             onChange={(e) => set_password(e.target.value)}
             required
           />
-
           <button
             type="submit"
             className="w-full rounded bg-blue-500 py-2 font-semibold hover:bg-blue-600"
           >
             INGRESAR
+          </button>
+
+          <button
+            onClick={() => navigate(-1)}
+            className="w-full rounded bg-gray-600 py-2 font-semibold hover:bg-blue-600"
+          >
+            VOLVER
           </button>
         </form>
       </div>

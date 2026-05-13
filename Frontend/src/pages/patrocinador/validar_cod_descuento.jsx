@@ -87,14 +87,13 @@ export default function ValidarCodigoDescuento() {
               <strong>Comprador:</strong> {result.data.buyer}
             </p>
             <p>
-              <strong>Teléfono:</strong> {result.data.phone}
+              <strong>Correo electrónico:</strong> {result.data.email}
             </p>
             <p>
               <strong>Descuento:</strong> {result.data.discount}
             </p>
             <p>
-              <strong>Patrocinador:</strong>{" "}
-              {result.data.patrocinador}
+              <strong>Patrocinador:</strong> {result.data.patrocinador}
             </p>
 
             <p className="text-xs text-slate-500 text-center">
@@ -106,4 +105,3 @@ export default function ValidarCodigoDescuento() {
     </div>
   );
 }
-``

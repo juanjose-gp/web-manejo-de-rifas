@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 export default function CreateSponsorPage() {
   const token = localStorage.getItem("token");
   const navigate = useNavigate();
-  
+
   async function handleCreateSponsor(form) {
     const res = await fetch("http://localhost:3000/admin/sponsors", {
       method: "POST",
