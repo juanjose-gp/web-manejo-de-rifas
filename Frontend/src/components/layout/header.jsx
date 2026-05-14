@@ -36,7 +36,7 @@ export default function Header({
             to="/"
             className="flex items-center flex-1 justify-center lg:justify-start"
           >
-            <img src={logo} alt="RIVAO" className="w-32 lg:w-48" />
+            <img src={logo} alt="RIVO" className="w-32 lg:w-48" />
           </Link>
 
           {/* DESKTOP ACTIONS */}

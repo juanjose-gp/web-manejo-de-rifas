@@ -1,11 +1,12 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import Header from "../../components/layout/header";
-import Footer from "../../components/layout/Footer";
+import Footer from "../../components/layout/footer";
 
 export default function Checkout() {
   const location = useLocation();
   const navigate = useNavigate();
+  const API_URL = import.meta.env.VITE_API_URL;
   const [processing, setProcessing] = useState(false);
 
   const { raffle, selectedNumbers, selectedSticker } = location.state || {};
@@ -48,9 +49,10 @@ export default function Checkout() {
     }
 
     try {
-      // ===== Confirmar compra (crear Purchase en PENDING) ====
+      console.log("API_URL:", API_URL);
+
       const confirmRes = await fetch(
-        `http://localhost:3000/raffles/${raffle.id}/confirm-purchase`,
+        `${API_URL}/raffles/${raffle.id}/confirm-purchase`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -58,7 +60,11 @@ export default function Checkout() {
         },
       );
 
+      console.log("confirmRes:", confirmRes);
+
       const confirmData = await confirmRes.json();
+
+      console.log("confirmData:", confirmData);
 
       if (!confirmRes.ok) {
         alert(confirmData.message || "Error al confirmar la compra");
@@ -66,22 +72,21 @@ export default function Checkout() {
         return;
       }
 
-      // ==== confirmData.purchaseId EXISTE ======
-      console.log("Purchase creada:", confirmData.purchaseId);
-
-      // ===== Crear pago en Wompi ======
-      const paymentRes = await fetch("http://localhost:3000/payments/create", {
+      const paymentRes = await fetch(`${API_URL}/payments/create`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
         body: JSON.stringify({
           purchaseId: confirmData.purchaseId,
         }),
       });
 
+      console.log("paymentRes:", paymentRes);
+
       const paymentData = await paymentRes.json();
+
+      console.log("paymentData:", paymentData);
 
       if (!paymentRes.ok || !paymentData.checkoutUrl) {
         alert("Error al crear el pago");
@@ -89,10 +94,9 @@ export default function Checkout() {
         return;
       }
 
-      // ====== REDIRIGIR A WOMPI =======
       window.location.href = paymentData.checkoutUrl;
     } catch (error) {
-      console.error("Error en checkout:", error);
+      console.error("ERROR REAL:", error);
       alert("Error de conexión");
       setProcessing(false);
     }

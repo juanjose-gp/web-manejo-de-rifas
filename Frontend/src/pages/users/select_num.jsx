@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Header from "../../components/layout/header";
-import Footer from "../../components/layout/Footer";
+import Footer from "../../components/layout/footer";
 
 export default function SeleccionarNumeros() {
   const { raffleId } = useParams();
@@ -9,6 +9,7 @@ export default function SeleccionarNumeros() {
 
   const [raffle, setRaffle] = useState(null);
   const [numbers, setNumbers] = useState([]);
+  const API_URL = import.meta.env.VITE_API_URL;
   const [selectedNumbers, setSelectedNumbers] = useState([]);
 
   // === Sticker seleccionado ===
@@ -18,7 +19,7 @@ export default function SeleccionarNumeros() {
 
   useEffect(() => {
     async function loadRaffle() {
-      const res = await fetch(`http://localhost:3000/raffles/${raffleId}`);
+      const res = await fetch(`${API_URL}/raffles/${raffleId}`);
       const data = await res.json();
       setRaffle(data);
     }
@@ -77,18 +78,15 @@ export default function SeleccionarNumeros() {
 
     try {
       //=== Reservar números ====
-      const res = await fetch(
-        `http://localhost:3000/raffles/${raffle.id}/reserve`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            numbers: selectedNumbers,
-          }),
+      const res = await fetch(`${API_URL}/raffles/${raffle.id}/reserve`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
-      );
+        body: JSON.stringify({
+          numbers: selectedNumbers,
+        }),
+      });
 
       if (!res.ok) {
         const error = await res.json();

@@ -39,6 +39,7 @@ export class DiscountsService {
     return {
       valid: true,
       buyer: purchase.buyerName,
+      email: purchase.buyerEmail,
       phone: purchase.buyerPhone,
       discount: purchase.discountCode?.code,
       patrocinador: purchase.discountCode?.patrocinador,

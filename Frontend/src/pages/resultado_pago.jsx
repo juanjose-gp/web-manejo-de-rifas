@@ -22,9 +22,8 @@ export default function ResultadoPago() {
 
     const interval = setInterval(async () => {
       try {
-        const res = await fetch(
-          `http://localhost:3000/purchases/${purchaseId}`,
-        );
+        const API_URL = import.meta.env.VITE_API_URL;
+        const res = await fetch(`${API_URL}/purchases/${purchaseId}`);
 
         const data = await res.json();
 

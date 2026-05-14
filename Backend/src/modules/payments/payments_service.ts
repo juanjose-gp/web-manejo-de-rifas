@@ -13,6 +13,7 @@ export class PaymentsService {
   // ========= CREAR PAGO EN WOMPI =========
 
   async createWompiPayment(purchaseId: number) {
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
     const purchase = await this.prisma.purchase.findUnique({
       where: { id: purchaseId },
     });
@@ -24,6 +25,8 @@ export class PaymentsService {
     if (purchase.status !== 'PENDING') {
       throw new BadRequestException('La compra no está pendiente de pago');
     }
+    console.log('FRONTEND_URL:', frontendUrl);
+    console.log('AMOUNT:', purchase.totalAmount);
 
     const response = await fetch(`${process.env.WOMPI_API_URL}/payment_links`, {
       method: 'POST',
@@ -37,14 +40,18 @@ export class PaymentsService {
         single_use: true,
         collect_shipping: false,
         currency: 'COP',
-        amount_in_cents: purchase.totalAmount * 100,
-        redirect_url: `http://localhost:5173/estado_pago?purchaseId=${purchase.id}`,
+        amount_in_cents: Number(purchase.totalAmount) * 100,
+        redirect_url: `${frontendUrl}/estado_pago?purchaseId=${purchase.id}`,
       }),
     });
 
     const data = await response.json();
+
+    console.log('WOMPI RESPONSE FULL:', data);
+
     if (!response.ok) {
-      throw new Error(data?.error?.message || 'Error creando payment link');
+      console.error('WOMPI ERROR:', data);
+      throw new Error(JSON.stringify(data));
     }
 
     const paymentLinkId = data.data.id;
@@ -169,16 +176,21 @@ export class PaymentsService {
       : null;
 
     // ===== ENVIAR EMAIL =====
-    await this.mailService.sendPurchaseEmail(purchase.buyerEmail, {
-      buyerName: purchase.buyerName,
-      raffle: purchase.raffle.title,
-      numbers,
-      validationCode,
-      code: discount?.code,
-      description: discount?.description,
-      patrocinador: discount?.patrocinador,
-      expiresAt: discount?.expiresAt,
-    });
-    return { ok: true };
+    try {
+      await this.mailService.sendPurchaseEmail(purchase.buyerEmail, {
+        buyerName: purchase.buyerName,
+        raffle: purchase.raffle.title,
+        numbers,
+        validationCode,
+        code: discount?.code,
+        description: discount?.description,
+        patrocinador: discount?.patrocinador,
+        expiresAt: discount?.expiresAt,
+      });
+
+      console.log(' EMAIL ENVIADO CORRECTAMENTE');
+    } catch (error) {
+      console.error('ERROR ENVIANDO EMAIL:', error);
+    }
   }
 }

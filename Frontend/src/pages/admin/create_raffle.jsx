@@ -1,5 +1,6 @@
 import RaffleForm from "../../components/admin/form_raffle";
 import { useNavigate } from "react-router-dom";
+const API_URL = import.meta.env.VITE_API_URL;
 
 export default function CreateRafflePage() {
   const token = localStorage.getItem("token");
@@ -39,7 +40,7 @@ export default function CreateRafflePage() {
       }
     });
 
-    const response = await fetch("http://localhost:3000/raffles", {
+    const response = await fetch(`${API_URL}/raffles`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,

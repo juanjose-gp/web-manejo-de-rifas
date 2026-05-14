@@ -11,10 +11,8 @@ import {
   Req,
 } from '@nestjs/common';
 
-import { diskStorage } from 'multer';
-import { extname } from 'path';
 import { AnyFilesInterceptor } from '@nestjs/platform-express';
-
+import { storage } from '../../config/cloudinary_storage';
 import { RafflesService } from './raffles_service';
 import { JwtGuard } from '../auth/guards/jwt_guard';
 import { RolesGuard } from '../auth/guards/roles_guard';
@@ -43,31 +41,13 @@ export class RafflesController {
   @Post()
   @UseGuards(JwtGuard, RolesGuard)
   @Roles('ADMIN')
-  @UseInterceptors(
-    AnyFilesInterceptor({
-      storage: diskStorage({
-        destination: (_req, file, cb) => {
-          if (file.fieldname === 'sticker_images') {
-            cb(null, './uploads/stickers');
-          } else {
-            cb(null, './uploads/raffles');
-          }
-        },
-        filename: (_req, file, cb) => {
-          const uniqueName = Date.now() + '-' + Math.round(Math.random() * 1e9);
-          cb(null, uniqueName + extname(file.originalname));
-        },
-      }),
-    }),
-  )
+  @UseInterceptors(AnyFilesInterceptor({ storage }))
   async create_raffle(
     @UploadedFiles() files: Express.Multer.File[],
     @Body() body: any,
   ) {
     const raffleImage = files.find((f) => f.fieldname === 'image');
-    const image_url = raffleImage
-      ? `http://localhost:3000/uploads/raffles/${raffleImage.filename}`
-      : null;
+    const image_url = raffleImage ? raffleImage.path : null;
 
     let stickersData: any[] = [];
     if (body.stickers) {
@@ -83,9 +63,7 @@ export class RafflesController {
       expiresAt: sticker.sticker_expiration
         ? new Date(sticker.sticker_expiration)
         : null,
-      image_url: stickerImages[index]
-        ? `http://localhost:3000/uploads/stickers/${stickerImages[index].filename}`
-        : null,
+      image_url: stickerImages[index] ? stickerImages[index].path : null,
     }));
 
     return this.raffles_service.create_raffle({

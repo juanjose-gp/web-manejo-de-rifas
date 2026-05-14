@@ -9,6 +9,7 @@ export default function CheckoutAuto() {
   const cart = state?.cart || [];
   const navigate = useNavigate();
   const [processing, setProcessing] = useState(false);
+  const API_URL = import.meta.env.VITE_API_URL;
   const [buyer, setBuyer] = useState({
     name: "",
     email: "",
@@ -39,27 +40,27 @@ export default function CheckoutAuto() {
   async function handlePay(e) {
     e.preventDefault();
 
+    if (processing) return;
+    setProcessing(true);
+
     if (!buyer.name || !buyer.email) {
       alert("Debes ingresar nombre y correo");
       return;
     }
 
     try {
-      /*
-
-      */
       const raffle = cart[0];
 
       //  Confirmar compra AUTOMÁTICA
       const confirmRes = await fetch(
-        `http://localhost:3000/raffles/${raffle.id}/confirm-purchase-auto`,
+        `${API_URL}/raffles/${raffle.id}/confirm-purchase-auto`,
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            quantity: raffle.quantity,
+            quantity: cart[0].quantity,
             buyer,
           }),
         },
@@ -77,7 +78,7 @@ export default function CheckoutAuto() {
       const purchaseId = confirmData.purchaseId;
 
       //  Crear pago (MISMO FLUJO QUE EL MANUAL)
-      const paymentRes = await fetch("http://localhost:3000/payments/create", {
+      const paymentRes = await fetch(`${API_URL}/payments/create`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

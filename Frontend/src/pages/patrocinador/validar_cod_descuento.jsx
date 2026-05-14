@@ -10,7 +10,8 @@ export default function ValidarCodigoDescuento() {
     setResult(null);
 
     try {
-      const res = await fetch("http://localhost:3000/discounts/validate", {
+      const API_URL = import.meta.env.VITE_API_URL;
+      const res = await fetch(`${API_URL}/discounts/validate`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

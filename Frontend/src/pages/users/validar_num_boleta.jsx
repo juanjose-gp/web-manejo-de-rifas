@@ -1,6 +1,6 @@
 import { useState } from "react";
 import Header from "../../components/layout/header";
-import Footer from "../../components/layout/Footer";
+import Footer from "../../components/layout/footer";
 import DarkGradientLayout from "../../components/layout/background";
 import { useNavigate } from "react-router-dom";
 
@@ -8,20 +8,18 @@ export default function ValidarNumBoleta() {
   const [email, setemail] = useState("");
   const [result, setResult] = useState(null);
   const navigate = useNavigate();
+  const API_URL = import.meta.env.VITE_API_URL;
 
   async function handleValidate(e) {
     e.preventDefault();
     setResult(null);
 
     try {
-      const res = await fetch(
-        "http://localhost:3000/raffles/validate-tickets",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email }),
-        },
-      );
+      const res = await fetch(`${API_URL}/raffles/validate-tickets`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
 
       const data = await res.json();
 

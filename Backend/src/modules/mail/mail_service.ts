@@ -1,16 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import * as nodemailer from 'nodemailer';
+import axios from 'axios';
 
 @Injectable()
 export class MailService {
-  private transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-      user: process.env.MAIL_USER,
-      pass: process.env.MAIL_PASS,
-    },
-  });
-
   async sendPurchaseEmail(to: string, data: any) {
     const {
       buyerName,
@@ -23,11 +15,17 @@ export class MailService {
       expiresAt,
     } = data;
 
-    await this.transporter.sendMail({
-      from: `"RIVAO" <${process.env.MAIL_USER}>`,
-      to,
-      subject: 'Compra confirmada',
-      html: `
+    await axios.post(
+      'https://api.brevo.com/v3/smtp/email',
+      {
+        sender: {
+          name: 'RIVO',
+          email: 'juanjodev218@gmail.com',
+        },
+        to: [{ email: to }],
+        subject: 'Compra confirmada',
+
+        htmlContent: `
 <div style="font-family: Arial, sans-serif; background:#f3f4f6; padding:20px;">
   <div style="max-width:600px; margin:auto; background:white; border-radius:10px; overflow:hidden; box-shadow:0 5px 15px rgba(0,0,0,0.1);">
 
@@ -42,7 +40,7 @@ export class MailService {
 
       <p>Tu compra fue realizada con éxito. ¡Gracias por participar!</p>
 
-      <p><strong>RIVAO:</strong> ${raffle}</p>
+      <p><strong>RIVO:</strong> ${raffle}</p>
 
       <!-- NÚMEROS -->
       <div style="margin-top:20px;">
@@ -61,7 +59,8 @@ export class MailService {
             ">
               ${n}
             </span>
-          `,)
+          `,
+            )
             .join('')}
         </div>
       </div>
@@ -132,7 +131,6 @@ export class MailService {
       `
           : ''
       }
-
       <p style="margin-top:25px;">
         Guarda este correo como comprobante de tu compra.
       </p>
@@ -140,12 +138,19 @@ export class MailService {
 
     <!-- FOOTER -->
     <div style="background:#f9fafb; padding:15px; text-align:center; font-size:12px; color:#6b7280;">
-      © ${new Date().getFullYear()} RIVAO - Todos los derechos reservados
+      © ${new Date().getFullYear()} RIVO - Todos los derechos reservados
     </div>
 
   </div>
 </div>
 `,
-    });
+      },
+      {
+        headers: {
+          'api-key': process.env.BREVO_API_KEY,
+          'Content-Type': 'application/json',
+        },
+      },
+    );
   }
 }
